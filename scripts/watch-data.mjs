@@ -6,6 +6,12 @@
 /** The longest message that is kept. */
 export const MESSAGE_LIMIT = 300;
 
+/** How many errors with their detail are kept for late listeners. */
+export const RECENT_LIMIT = 40;
+
+/** The longest stack that is kept, in characters. */
+export const STACK_LIMIT = 1800;
+
 /** How many packages are tracked apart, the rest is counted together. */
 export const OWNER_LIMIT = 80;
 
@@ -24,6 +30,16 @@ export const OVERFLOW = "other:overflow";
 export function clip(value, limit = MESSAGE_LIMIT) {
   const text = String(value ?? "").replace(/\s+/g, " ").trim();
   return (text.length > limit) ? `${text.slice(0, limit - 1)}…` : text;
+}
+
+/**
+ * Shorten a stack trace, keeping its lines.
+ * @param {*} value
+ * @returns {string}
+ */
+export function clipStack(value) {
+  const text = (typeof value === "string") ? value : "";
+  return (text.length > STACK_LIMIT) ? text.slice(0, STACK_LIMIT) : text;
 }
 
 /**
@@ -50,6 +66,10 @@ export class WatchLog {
     /** @type {Map<string, {count: number, first: object, until: string[]}>} */
     this.deprecations = new Map();
     this.since = new Date().toISOString();
+    /** Who wants to know about every error: called with {owner, kind, message, at, stack, hook}. */
+    this.listeners = new Set();
+    /** The latest errors of packages with their detail, for a listener that starts late. */
+    this.recent = [];
   }
 
   /**
@@ -69,8 +89,9 @@ export class WatchLog {
    * @param {string} kind      "error", "rejection" or "hook"
    * @param {*} message
    * @param {string} [at]      ISO date
+   * @param {{stack?: string, hook?: string}} [detail]   Where it came from, for the report to the GM
    */
-  addError(owner, kind, message, at = new Date().toISOString()) {
+  addError(owner, kind, message, at = new Date().toISOString(), detail = {}) {
     const key = this.#slot(this.errors, owner);
     let entry = this.errors.get(key);
     if ( !entry ) {
@@ -80,6 +101,25 @@ export class WatchLog {
     entry.count++;
     entry.last = {message: clip(message), kind, at};
     entry.kinds[kind] = (entry.kinds[kind] ?? 0) + 1;
+    this.#announce({owner, kind, message: clip(message), at, stack: clipStack(detail?.stack), hook: String(detail?.hook ?? "").slice(0, 80)});
+  }
+
+  /**
+   * Remember an error with its detail and tell the listeners. A listener that throws is ignored.
+   * @param {object} item
+   */
+  #announce(item) {
+    if ( /^(module|system):/.test(item.owner) ) {
+      this.recent.push(item);
+      if ( this.recent.length > RECENT_LIMIT ) this.recent.shift();
+    }
+    for ( const listener of this.listeners ) {
+      try {
+        listener(item);
+      } catch {
+        // The watch never throws
+      }
+    }
   }
 
   /**
@@ -130,6 +170,7 @@ export class WatchLog {
   clear() {
     this.errors.clear();
     this.deprecations.clear();
+    this.recent = [];
     this.since = new Date().toISOString();
   }
 }

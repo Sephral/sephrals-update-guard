@@ -17,6 +17,8 @@ export const SETTINGS = {
   windowMode: {type: String, default: "window", scope: "client", choices: {
     window: "SUG.SETTINGS.windowMode.window", notice: "SUG.SETTINGS.windowMode.notice", none: "SUG.SETTINGS.windowMode.none"}},
   goodAfter: {type: Number, default: 10, scope: "world", range: {min: 1, max: 120, step: 1}},
+  collectPlayerErrors: {type: Boolean, default: true, scope: "world"},
+  playerNotice: {type: Boolean, default: true, scope: "client"},
   theme: {type: String, default: "signature", scope: "client", onChange: "redraw", choices: {
     signature: "SUG.SETTINGS.theme.signature", foundry: "SUG.SETTINGS.theme.foundry"}}
 };
@@ -41,6 +43,7 @@ export function registerSettings(handlers) {
     });
   }
   game.settings.register(MODULE_ID, "history", {scope: "world", config: false, type: String, default: ""});
+  game.settings.register(MODULE_ID, "playerErrors", {scope: "world", config: false, type: String, default: ""});
   game.settings.register(MODULE_ID, "search", {scope: "world", config: false, type: Object, default: {}});
   game.settings.registerMenu(MODULE_ID, "guard", {
     name: "SUG.SETTINGS.guard.name",

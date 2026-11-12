@@ -131,6 +131,11 @@
   padding: 12px 16px 20px;
 }
 
+/* Until the user resizes it, the main window fits its content and stays at a moderate height */
+.sug-guard:not(.sug-sized) .sug-body {
+  max-height: min(560px, calc(100vh - 220px));
+}
+
 .sug-app h2 {
   margin: 18px 0 6px;
   font-size: 15px;
@@ -614,4 +619,65 @@
 .sug-sidebar-button {
   width: 100%;
   margin: 6px 0;
+}
+
+/* Errors of the players, the check before a session, the safety net, the report window */
+.sug-app .sug-player h3 {
+  margin: 10px 0 4px;
+  font-size: 13px;
+  border: none;
+  color: var(--sug-ink);
+}
+
+.sug-app .sug-player-error {
+  margin-top: 6px;
+  padding-left: 8px;
+  border-left: 3px solid var(--sug-line);
+}
+
+.sug-app .sug-player-error.sug-unread {
+  border-left-color: var(--sug-bad);
+}
+
+.sug-app .sug-stack {
+  margin: 4px 0 0;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: var(--sug-soft);
+  font-family: var(--font-monospace, monospace);
+  font-size: 11px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.sug-app .sug-status-text em {
+  font-style: normal;
+  font-weight: 700;
+}
+
+.sug-app .sug-ready-versions {
+  margin: 2px 0 0;
+}
+
+.sug-app .sug-safety summary {
+  font-weight: 700;
+}
+
+.sug-app .sug-safety.sug-safety-open {
+  border-color: var(--sug-warn);
+}
+
+.sug-app textarea.sug-report-text {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 220px;
+  padding: 8px;
+  border: 1px solid var(--sug-line);
+  border-radius: 6px;
+  background: var(--sug-field);
+  color: var(--sug-ink);
+  font-family: var(--font-monospace, monospace);
+  font-size: 12px;
+  line-height: 1.4;
+  resize: vertical;
 }

@@ -1,13 +1,13 @@
 # Sephral’s Update Guard: Manual
 
-Update Guard is a tool for the GM. Players never see its windows, and the module records and shows nothing for them.
+Update Guard is a tool for the GM. Players never see its windows or any notice of the module. In the background their browsers report errors of modules to the GM, see *Errors of the players*, and that can be switched off.
 
 ## What it can and cannot do
 
 * It runs only inside a started world. If the world does not start after an update, nothing appears. That is why the export exists: save it before you update.
 * It cannot install, update or roll back anything. Foundry does that on its setup screen only. Update Guard shows the steps and the addresses. What it can do is switch modules on and off in this world, always after you asked for it.
 * Everything it shows comes from manifests and lists, and every statement names its source. *Verified* is the author's claim in the manifest. It does not mean error free.
-* It sends nothing over the network until the GM clicks *Look for newer versions*, and the window says what is sent.
+* It sends nothing over the network until the GM clicks *Look for newer versions* or *Look for open issues*, and the window says what is sent. The reports of the players travel over Foundry's own connection to the GM, never to another server.
 
 ## Opening the window
 
@@ -34,11 +34,49 @@ Nothing in the world is created or changed: the chat card exists only in memory,
 
 The run happens on the GM's screen only and takes about half a minute, the windows flash by.
 
+### Ready for tonight?
+
+One click before a session. *Ready for tonight?* runs the test run, collects the errors your players had since you last marked them as read, asks the connected players' browsers which versions they run, and gives one answer with the next step. The order of the answers is: errors in the test run, errors of the players, browsers that differ, things that no longer fit. Under the answer stand the details.
+
+* **Browsers that differ.** Every connected player's browser answers with the version of Foundry, of the game system and of every active module, and the window compares them with yours. It names the player and what differs: a module with another version, a module that is missing there or only there. A page that was opened before an update still runs the old versions, so the usual next step is to reload the page with F5, and if that does not help, to clear the cache of the browser. A browser that does not answer within a few seconds is named too, it is most likely an old page. Only versions of Foundry, the system and the active modules are exchanged.
+* **No players connected.** Then only your side is checked, and the answer says so.
+
+Nothing in the world is changed. The versions are what the browser loaded with the page. Update Guard cannot see which files the browser cache holds, so a stale cache shows up only when it shows up as another version.
+
+### Errors of the players
+
+The browsers of your players report errors of modules and of the game system to the GM. Update Guard already counts errors and unhandled promises in your own browser, and it reads the module an error comes from out of the stack trace. The same watch runs in the players' browsers and tells you:
+
+* **which module**, and which player,
+* **where**: in a sheet, a window, a hook or somewhere in a script, read from the name of the hook (render hooks carry the name of the window) and from the stack,
+* **how often**: the same error from the same player counts up, it is not listed again.
+
+The window shows them in the first tab, per player and per module, with the stack lines folded under each error. New ones are marked until you click *Mark as read*, and they turn the answer of the tab to *causing trouble*. While you play, a quiet notice names the player and the module when a new error arrives, at most once a minute per module. *Notice for errors of the players* turns that off. The list is kept in a world setting, so it is still there after a restart, and *Clear the list* empties it.
+
+What is sent, and to whom:
+
+* Only to the GMs who are online, over the module socket. Players do not receive anything from other players.
+* Per error: the module or system, the kind (script error, unhandled promise, error inside a hook), a message of at most 200 characters, up to 5 stack lines, the place and a count. Nothing else. The sender is taken from the server's connection, not from the report.
+* The message loses addresses of servers, folders of the computer (`C:\Users\...`, `/home/...`) and mail addresses. Stack lines keep only the path inside `modules/` or `systems/`, the function and the line.
+* Errors of Foundry itself, of code that belongs to no package and of Update Guard are not reported.
+* Throttled: the first report of an error goes out at once, repeats are counted and sent together at most every 30 seconds, at most 8 reports a minute leave a browser, and at most 25 different errors per page load are tracked. The GM's side accepts at most 30 reports a minute from one player. A module that throws in a loop costs a few messages.
+* Without a GM online the newest 30 reports wait in the browser and go out when a GM connects.
+
+Players see nothing: no window, no notice, no button. The setting *Errors of the players* (world) switches the reports off for everyone. The reports also count as evidence for *Something broken?*: the modules they name are suspects first, even if they did not change.
+
+### Report this problem
+
+For a module that is to blame, the test run, the error list, the list of the players' errors and the result of the search have the button *Report this problem*. It opens a window with the module, the error and two steps. Nothing is sent by Update Guard itself.
+
+1. **Is it known already?** The window finds the GitHub repository of the module in this order: the `bugs` address of its manifest, then `url`, `manifest`, `readme`, `changelog`. On the click of *Look for open issues* it asks `api.github.com`, the public search of GitHub, for open issues of that repository that match the key words of the error (names and unusual words, not the phrases every error message has). The window shows what is sent before you click: the name of the repository and the key words, no cookies, no referrer. Matching issues are listed as links. The limit of GitHub for requests without a login (a few searches a minute) is reported as such. Answers stay in memory for one hour.
+2. **A bug report text.** Module, version, Foundry and game system version, the number of other active modules, the error with the place it appeared, a few stack lines and a line for the steps. The text is always in English, because authors read English. It holds no player names. You can edit it and *Copy text*. When the repository is on GitHub, *Open a new issue on GitHub* opens the new issue page in a new tab with the title and the text filled in (and the text is in the clipboard as well, because an address can only hold so much). Nothing is sent until you press the button on GitHub. When no repository is known, the window says so and links the project page.
+
 ### Something broken?
 
 For a problem no error names. The search suspects what changed since the last state that ran well: new modules, other versions, modules switched on. If nothing changed, every active module is a suspect.
 
 1. Round 1 switches all suspects off and reloads. You try what did not work and answer *The problem is gone* or *The problem is still there*.
+   Modules that the errors of the players point at are suspects first, also when nothing changed in them, and they are tested in the first rounds. The question before the search says so.
 2. If it stayed, it is none of them, and the search offers to go through the other active modules.
 3. If it went away, the search halves the suspects round by round until one is left. Modules that need a module which is off go off with it.
 4. At the end all modules are back on and the window names the module. You switch it off, or end the search.
@@ -93,6 +131,13 @@ A blocked request is reported as *the browser could not reach it*. The browser d
 
 Modules that called Foundry functions marked as deprecated since the page loaded are listed with the number of calls, the first message and the version in which Foundry removes the function. A call that Foundry removes in the target version or earlier is marked, because that is the clearest sign of trouble. Foundry's compatibility mode set to silent hides these warnings, and the window says so. Every call is counted, also those Foundry logs only once and those a module has hidden with its own pattern.
 
+### Before you update
+
+The section *Before you update* on the second tab opens by itself as soon as the window shows that updates are available, and is there on demand otherwise.
+
+* **Save the module list.** When Module Loadouts by Sephral is active, *Save module list as loadout* saves the active modules as a world loadout named `Update Guard <date> (Foundry <version>)`, so you can come back to exactly this list. It uses only the `saveCurrent` call of the API of Module Loadouts. A loadout of the same name is replaced, and nothing else of Module Loadouts is touched. *Open Module Loadouts* opens its manager. Without Module Loadouts the section says so, and the export below keeps the list of modules and versions.
+* **Backup.** A reminder to back up what you cannot lose before you update. When Content Backup & Restore by Sephral is active, the reminder names it, says where its entry is (the context menu of scenes, actors, items and journals) and links its page. Otherwise it points at Foundry's own snapshot in the setup and at copying the Data folder.
+
 ### Export and checklist
 
 *Save as JSON* and *Save as text* write one file with every installed module and version, its manifest address, the rating for the target, what does not fit, errors, old calls and the recorded states. The checklist names the steps before an update, with Foundry's own button names.
@@ -113,6 +158,8 @@ The last 12 different states are kept in a world setting. A state is saved only 
 | Look | This device | Signature (warm paper) or Foundry (dark) for the windows |
 | After an update | This device | Open the window, show a notice only, or nothing |
 | Minutes without a module error | World | How long a start must stay quiet to count as one that ran well |
+| Errors of the players | World | The players' browsers report errors of modules to the GM. On by default |
+| Notice for errors of the players | This device | A quiet notice for the GM when a player's browser reports a new error. On by default |
 | Open Update Guard | GM | Opens the window |
 | Run self test | GM | See below |
 | Save debug file | GM | See below |
@@ -130,6 +177,13 @@ One key without a default, set it in Foundry's key settings under Update Guard: 
 | `api.open({tab})` | Opens the window (GM). The tab is `changes`, `check` or `back`. |
 | `await api.check(target, {online})` | Rates the system and the active modules for a target such as `"15"`. Only with `{online: true}` it sends requests, so call that only after the GM agreed. Returns the target, the rated list, the counts and the verdict line. |
 | `await api.trial()` | The test run (GM). Returns the checks, the modules with errors and the steps. |
+| `await api.ready()` | *Ready for tonight?* (GM). Opens the window, runs the test run, asks the players' browsers for their versions and returns `{at, answer, trialModules, playerModules, players, connected, fitProblems}`. `answer` has `level`, `key`, `count` and `next`. |
+| `api.lastReady()` | The result of the last *Ready for tonight?*, or `null`. |
+| `api.playerErrors()` | The errors the players' browsers reported (GM), newest first: `owner`, `userName`, `kind`, `message`, `where`, `stack`, `count`, `first`, `last`. |
+| `await api.playerVersions({wait})` | Asks the connected players' browsers which versions they run and compares them with this browser. `wait` is the time to wait in milliseconds, 2500 by default. |
+| `api.report(id, {kind, key})` | Opens *Report this problem* for a module (GM). `kind` is `module` or `system`, `key` names an error from `api.playerErrors()`. Sends nothing. |
+| `api.reportText(id, {kind, key})` | The bug report text, the repository and the key words as data. Sends nothing. |
+| `await api.saveModuleList()` | Saves the active modules as a loadout of Module Loadouts when that module is active (GM). Returns `{ok, name}`. |
 | `api.snapshot()` | The current state: Foundry, system and modules with version, compatibility and manifest address. |
 | `api.history()` | The recorded states, newest first. |
 | `api.export()` | The export as plain data. |
@@ -139,11 +193,11 @@ One key without a default, set it in Foundry's key settings under Update Guard: 
 
 ## Self test
 
-*Run self test* in the module settings checks what Update Guard relies on: how Foundry names package data and availability, that its version comparison agrees with Foundry's, the stored history, the early watch for errors and the counter for old calls, saving files and the texts it uses. The result comes as a notification and a chat message only you see, with the Foundry version the module was verified with. After a Foundry update you get a one time notice to run it.
+*Run self test* in the module settings checks what Update Guard relies on: how Foundry names package data and availability, that its version comparison agrees with Foundry's, the stored history, the early watch for errors and the counter for old calls, saving files, the module socket, the logic that cleans and counts the players' reports, the settings for them, that its own manifest names a GitHub repository, that the API of Module Loadouts has what the safety net uses when that module is active, and the texts it uses. The result comes as a notification and a chat message only you see, with the Foundry version the module was verified with. After a Foundry update you get a one time notice to run it.
 
 ## Debug file
 
-For bug reports, the GM saves one file about all of Sephral’s modules in this world: `Save debug file` in the module settings, or `Save Debug File (Sephral’s Modules)` in the context menu of a chat message. For Update Guard it holds the Foundry and system version, the recorded states with their marks, the counts of errors and old calls per package (no messages), and what the watch has installed.
+For bug reports, the GM saves one file about all of Sephral’s modules in this world: `Save debug file` in the module settings, or `Save Debug File (Sephral’s Modules)` in the context menu of a chat message. For Update Guard it holds the Foundry and system version, the recorded states with their marks, the counts of errors and old calls per package (no messages), for the errors of the players only how many there are per module and from how many players, and what the watch has installed.
 
 The file contains chat text and whispers. Check it before you share it.
 
@@ -158,8 +212,8 @@ The module can take part in a small usage report shared by all of Sephral’s mo
 With the GM’s consent only the active GM’s browser counts, and it sends at most one report a day. The counts are kept in a hidden world setting, so all browsers and computers of the GM count together, and turning the statistics off deletes them. A copy of a world gets its own world ID. The question lists everything the report contains, from the Foundry version to a random world ID. For Update Guard it holds:
 
 * on how many of the last 30 days the module was used
-* how often the GM opens the window, how often it opens by itself after a change, runs a test run, starts a search, finds a module, switches a module off, changes the target, looks for newer versions, saves an export and copies an older manifest address
-* the settings *Look*, *After an update* and *Minutes without a module error* (only the chosen option or number)
+* how often the GM opens the window, how often it opens by itself after a change, runs a test run, runs *Ready for tonight?*, starts a search, finds a module, switches a module off, changes the target, looks for newer versions, saves an export, copies an older manifest address, opens *Report this problem*, looks for open issues, saves the module list as a loadout, and how many errors of players arrived (a number, no content)
+* the settings *Look*, *After an update*, *Minutes without a module error*, *Errors of the players* and *Notice for errors of the players* (only the chosen option or number)
 * where errors occur in the module code: file, line, error type and whether the error arose in the module itself, in Foundry, in the game system or in another module, never the error message or the name of another module
 
 No names, notes, pictures or other content of the world are sent.

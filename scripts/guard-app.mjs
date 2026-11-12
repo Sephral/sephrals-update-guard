@@ -5,7 +5,7 @@
  * after safeHttpUrl.
  */
 
-import {MODULE_ID, TEMPLATES, addSettingsGear, isShown, setting, t} from "./config.mjs";
+import {MODULE_ID, TEMPLATES, addSettingsGear, copyText, isShown, setting, t} from "./config.mjs";
 import {roundsLeft} from "./culprit.mjs";
 import {buildExport, exportFileName, exportText} from "./export-data.mjs";
 import {foundryPackagePage, hostOf, olderManifest, parseGithubManifest, safeHttpUrl} from "./links.mjs";
@@ -16,6 +16,10 @@ import {countStatuses, maximumReaches, minimumFits, rateAll, verdictLine} from "
 import {countChanges, diffStates, lastGood, rollbackTargets} from "./snapshots.mjs";
 import {answerSearch, dependentsOf, readSearch, startSearch, stopSearch, suspects, switchOff, widenSearch} from "./search.mjs";
 import {collectState, isRecorder, ratingItems, readHistory, recordTrial} from "./state.mjs";
+import {clearPlayerErrors, markPlayerErrorsRead, requestVersions, store as playerStore} from "./players.mjs";
+import {readyAnswer} from "./ready-data.mjs";
+import {openReport} from "./report-app.mjs";
+import {openLoadouts, safetyOptions, saveModuleList} from "./safety.mjs";
 import {runTrial} from "./trial.mjs";
 import {storedTrial} from "./trial-data.mjs";
 import {countFeature, markUsed} from "./usage.mjs";
@@ -43,8 +47,15 @@ const session = {
   verified: new Map(),
   copied: "",
   trial: null,
-  trialStep: null
+  trialStep: null,
+  ready: null,
+  readyRunning: null,
+  safety: null
 };
+
+/** Where in the world each step of the test run happens, for a report. */
+const TRIAL_WHERE = {actor: "sheet", item: "sheet", journal: "sheet", table: "sheet", scene: "window", token: "window", hud: "window",
+  chat: "window", sidebar: "window", tools: "window", settings: "window", modules: "window", compendium: "window"};
 
 /** The icon of each level of an answer. */
 const LEVEL_ICONS = {good: "fa-circle-check", warn: "fa-circle-exclamation", bad: "fa-triangle-exclamation", new: "fa-shield-halved"};
@@ -135,29 +146,6 @@ function packageLinks(id, kind = "module") {
   return links;
 }
 
-/** Copy text to the clipboard. The clipboard API needs a secure page, a plain http server gets the old way. */
-async function copyText(text) {
-  try {
-    await navigator.clipboard.writeText(text);
-    return true;
-  } catch {
-    const area = document.createElement("textarea");
-    area.value = text;
-    area.style.position = "fixed";
-    area.style.opacity = "0";
-    document.body.append(area);
-    area.select();
-    let ok = false;
-    try {
-      ok = document.execCommand("copy");
-    } catch {
-      ok = false;
-    }
-    area.remove();
-    return ok;
-  }
-}
-
 export class GuardApp extends HandlebarsApplicationMixin(ApplicationV2) {
   /** @override */
   static DEFAULT_OPTIONS = {
@@ -165,7 +153,7 @@ export class GuardApp extends HandlebarsApplicationMixin(ApplicationV2) {
     classes: ["sug-app", "sug-guard"],
     tag: "section",
     window: {title: "SUG.Window.title", icon: "fa-solid fa-shield-halved", resizable: true},
-    position: {width: 780, height: 740},
+    position: {width: 700, height: "auto"},
     actions: {
       switchTab: GuardApp.#onTab,
       runTrial: GuardApp.#onRunTrial,
@@ -180,7 +168,13 @@ export class GuardApp extends HandlebarsApplicationMixin(ApplicationV2) {
       exportText: GuardApp.#onExportText,
       copyUrl: GuardApp.#onCopyUrl,
       verifyOlder: GuardApp.#onVerifyOlder,
-      clearErrors: GuardApp.#onClearErrors
+      clearErrors: GuardApp.#onClearErrors,
+      runReady: GuardApp.#onRunReady,
+      reportBug: GuardApp.#onReportBug,
+      readPlayers: GuardApp.#onReadPlayers,
+      clearPlayers: GuardApp.#onClearPlayers,
+      saveLoadout: GuardApp.#onSaveLoadout,
+      openLoadouts: GuardApp.#onOpenLoadouts
     }
   };
 
@@ -219,6 +213,13 @@ export class GuardApp extends HandlebarsApplicationMixin(ApplicationV2) {
       isCheck: session.tab === "check",
       isBack: session.tab === "back"
     };
+  }
+
+  /** @override */
+  _onPosition(position) {
+    super._onPosition?.(position);
+    // The window fits its content until the user resizes it, then the chosen height counts
+    this.element?.classList.toggle("sug-sized", position.height !== "auto");
   }
 
   /** @override */
@@ -388,10 +389,11 @@ export class GuardApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const fits = problems.map(p => this.#problemRow(p));
     const errors = this.#errorRows();
     const trial = this.#trial(current);
-    trial.owners = trial.owners?.map(o => ({...o, canOff: this.#canSwitchOff(o)}));
+    trial.owners = trial.owners?.map(o => ({...o, canOff: this.#canSwitchOff(o), canReport: o.kind === "module"}));
+    const players = this.#players();
     const hasProblems = fits.some(p => p.severity === "problem");
     const troubled = new Set([...errors.map(e => e.id), ...fits.filter(p => p.severity === "problem").map(p => p.id),
-      ...(trial.owners ?? []).map(o => o.id)]).size;
+      ...(trial.owners ?? []).map(o => o.id), ...players.unreadIds]).size;
     const verdict = runStatus({hasPrevious: !!previous, changes: changes.count, troubled, trial: session.trial ?? current?.trial ?? null,
       good: !!current?.good});
     const lastCheck = session.trial ?? current?.trial;
@@ -407,11 +409,68 @@ export class GuardApp extends HandlebarsApplicationMixin(ApplicationV2) {
       hasProblems,
       hasNotes: fits.some(p => p.severity === "note"),
       // What the test run already named is not listed a second time
-      errors: errors.filter(e => !trial.owners?.some(o => o.id === e.id)).map(e => ({...e, canOff: this.#canSwitchOff(e)})),
+      errors: errors.filter(e => !trial.owners?.some(o => o.id === e.id)).map(e => ({...e, canOff: this.#canSwitchOff(e),
+        canReport: e.kind === "module"})),
+      players,
+      ready: this.#ready(),
       errorsTotal: log.errorTotal(),
       errorsSince: dateText(log.since),
       otherErrors: this.#otherErrors(),
       compatNote: this.#compatNote()
+    };
+  }
+
+  /**
+   * The errors of the players as text: per player, per module, with what the GM needs to judge them.
+   * @returns {object}
+   */
+  #players() {
+    const on = !!setting("collectPlayerErrors");
+    const unread = playerStore.list({unreadOnly: true});
+    const groups = playerStore.grouped().map(user => ({
+      userName: user.userName,
+      modules: user.modules.map(m => {
+        const info = ownerInfo(m.owner);
+        return {title: info.title, id: info.id, kind: info.kind, count: m.count, canOff: this.#canSwitchOff(info),
+          canReport: info.kind === "module",
+          errors: m.errors.map(e => ({key: e.key, message: e.message, count: e.count, isNew: playerStore.isNew(e),
+            meta: [e.where.type === "script" ? "" : t(`SUG.Players.where.${e.where.type}`, {name: e.where.name}).trim(),
+              t(`SUG.Errors.kind.${e.kind}`), `${e.count}x`, dateText(e.last)].filter(Boolean).join(", "),
+            stack: e.stack.join("\n"), hasStack: e.stack.length > 0}))};
+      })
+    }));
+    return {
+      on, shown: on || (groups.length > 0), groups, any: groups.length > 0,
+      unread: unread.length, unreadIds: [...new Set(unread.filter(e => e.owner.startsWith("module:")).map(e => e.owner.slice(7)))],
+      hint: t(on ? "SUG.Players.hint" : "SUG.Players.off"),
+      empty: t("SUG.Players.empty"),
+      newText: t("SUG.Players.new", {count: unread.length})
+    };
+  }
+
+  /**
+   * The result of the check "Ready for tonight?" as text.
+   * @returns {object|null}
+   */
+  #ready() {
+    const running = session.readyRunning;
+    const ready = session.ready;
+    if ( !running && !ready ) return null;
+    if ( running ) {
+      return {running: true, progress: t(running.phase === "players" ? "SUG.Ready.askingPlayers" : "SUG.Ready.testing")};
+    }
+    const a = ready.answer;
+    const names = {names: ready.trialModules.concat(ready.playerModules).slice(0, 3).join(", ")};
+    const players = ready.players.map(p => ({name: p.name, lines: p.lines}));
+    return {
+      running: false, level: a.level, key: a.key, at: dateText(ready.at),
+      icon: LEVEL_ICONS[a.level],
+      headline: t(`SUG.Ready.${a.key}`, {count: a.count, ...names, players: ready.players.map(p => p.name).join(", ")}),
+      next: t(`SUG.Ready.next.${a.next}`),
+      trial: ready.trialModules, playerModules: ready.playerModules, players, hasPlayers: players.length > 0,
+      connected: !ready.connected ? t("SUG.Ready.connectedNone") : (ready.connected === 1 ? t("SUG.Ready.connectedOne") : t("SUG.Ready.connected", {count: ready.connected})),
+      fit: ready.fitProblems ? t("SUG.Ready.fit", {count: ready.fitProblems}) : "",
+      trialTitle: t("SUG.Ready.trialTitle"), playerTitle: t("SUG.Ready.playerTitle"), versionTitle: t("SUG.Ready.versionTitle")
     };
   }
 
@@ -553,7 +612,27 @@ export class GuardApp extends HandlebarsApplicationMixin(ApplicationV2) {
       deprecatedOther: this.#deprecatedOther(),
       compatNote: this.#compatNote(),
       checklist: this.#checklist(),
+      safety: this.#safety(counts.update > 0),
       hasHistory: history.length > 0
+    };
+  }
+
+  /**
+   * The safety net before an update.
+   * @param {boolean} updates   Does the window show that updates are available?
+   * @returns {object}
+   */
+  #safety(updates) {
+    const options = safetyOptions();
+    const saved = session.safety;
+    return {
+      open: updates || !!saved, updates, ...options,
+      summary: t(updates ? "SUG.Safety.summaryUpdates" : "SUG.Safety.summary"),
+      saved: saved?.ok ? t("SUG.Safety.saved", {name: saved.name}) : "",
+      savedFailed: saved && !saved.ok ? t("SUG.Safety.failed") : "",
+      loadoutHint: options.loadouts ? t("SUG.Safety.loadoutOn") : t("SUG.Safety.loadoutOff"),
+      backupHint: options.backup ? t("SUG.Safety.backupOn")
+        : t("SUG.Safety.backupOff", {snapshot: localizeOr("SETUP.BACKUPS.CreateSnapshot", "Create a Snapshot")})
     };
   }
 
@@ -753,7 +832,8 @@ export class GuardApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const others = game.users.filter(u => u.active && (u.id !== game.user.id)).length;
     const intro = t(found.scope === "changed" ? "SUG.Search.introChanged" : "SUG.Search.introAll",
       {count: found.ids.length, since: found.since ? dayText(found.since) : ""});
-    const paragraphs = [t("SUG.Search.intro"), intro, others ? t("SUG.Search.others", {count: others}) : ""].filter(Boolean);
+    const hints = found.evidence?.length ? t("SUG.Search.introEvidence", {count: found.evidence.length}) : "";
+    const paragraphs = [t("SUG.Search.intro"), intro, hints, others ? t("SUG.Search.others", {count: others}) : ""].filter(Boolean);
     const content = document.createElement("div");
     for ( const text of paragraphs ) content.append(Object.assign(document.createElement("p"), {textContent: text}));
     const sure = await DialogV2.confirm({window: {title: t("SUG.Search.title"), icon: "fa-solid fa-magnifying-glass"},
@@ -900,6 +980,66 @@ export class GuardApp extends HandlebarsApplicationMixin(ApplicationV2) {
     log.clear();
     this.render();
   }
+
+  /** @this {GuardApp} */
+  static async #onRunReady() {
+    await startReady();
+  }
+
+  /** @this {GuardApp} */
+  static async #onReportBug(event, target) {
+    const id = target.dataset.id;
+    if ( !id ) return;
+    await openReport({id, kind: target.dataset.kind === "system" ? "system" : "module", error: errorFor(id, target.dataset.key)});
+  }
+
+  /** @this {GuardApp} */
+  static async #onReadPlayers() {
+    await markPlayerErrorsRead();
+  }
+
+  /** @this {GuardApp} */
+  static async #onClearPlayers() {
+    await clearPlayerErrors();
+  }
+
+  /** @this {GuardApp} */
+  static async #onSaveLoadout(event, target) {
+    target.disabled = true;
+    session.safety = {...(await saveModuleList()), at: new Date().toISOString()};
+    if ( session.safety.ok ) countFeature(MODULE_ID, "loadoutSaved");
+    if ( isShown(this) ) this.render();
+  }
+
+  /** @this {GuardApp} */
+  static #onOpenLoadouts() {
+    openLoadouts();
+  }
+}
+
+/**
+ * What is known about an error of a module, for the bug report: the entry of a player, the test run, or what the watch of
+ * this browser counted.
+ * @param {string} id          Module id
+ * @param {string} [key]       The key of an entry in the list of the players' errors
+ * @returns {{message: string, kind: string, where: object, stack: string[], source: string}}
+ */
+export function errorFor(id, key = "") {
+  const owner = `module:${id}`;
+  const entry = (key && playerStore.entries.get(key)) || playerStore.list().find(e => e.owner === owner);
+  if ( entry ) return {message: entry.message, kind: entry.kind, where: entry.where, stack: entry.stack, source: "player"};
+  const trial = (session.trial ?? readHistory()[0]?.trial)?.owners?.find(o => o.owner === owner);
+  if ( trial ) {
+    const step = (trial.steps ?? []).find(s => TRIAL_WHERE[s]);
+    return {message: trial.message, kind: "error", where: step ? {type: TRIAL_WHERE[step], name: step} : {type: "script", name: ""},
+      stack: [], source: "trial"};
+  }
+  const seen = log.errors.get(owner);
+  if ( seen ) {
+    return {message: seen.last?.message ?? seen.first.message, kind: seen.last?.kind ?? "error", where: {type: "script", name: ""},
+      stack: [], source: "gm"};
+  }
+  return {message: "", kind: "error", where: {type: "script", name: ""}, stack: [], source: ""};
 }
 
 /**
@@ -917,6 +1057,11 @@ export function exportData() {
   const errors = [...log.errors].map(([owner, e]) => ({id: owner, count: e.count, message: e.first.message}));
   return buildExport({generatedAt: new Date().toISOString(), state, history, target, rated,
     report: session.report, problems, deprecations, errors});
+}
+
+/** The result of the last check before a session, for the API. */
+export function lastReady() {
+  return session.ready;
 }
 
 /** The open window, if any. */
@@ -952,6 +1097,67 @@ export async function startTrial() {
     }
   }
   return result;
+}
+
+/**
+ * "Ready for tonight?": the test run, the errors of the players since the last read, and the versions of the players'
+ * browsers, with one answer and the next step.
+ * @returns {Promise<object|null>}   The result, or null when a run is going on
+ */
+export async function startReady() {
+  if ( session.readyRunning || session.trialStep ) return null;
+  session.tab = "changes";
+  session.readyRunning = {phase: "trial"};
+  session.ready = null;
+  const app = await openGuard();
+  countFeature(MODULE_ID, "readyRun");
+  try {
+    const trial = await startTrial();
+    session.readyRunning = {phase: "players"};
+    if ( isShown(app) ) app.render();
+    const versions = await requestVersions();
+    session.ready = buildReady(trial, versions);
+  } catch(err) {
+    console.error(`${MODULE_ID} | The check before the session failed`, err);
+    ui.notifications.error(t("SUG.Ready.failed"));
+  } finally {
+    session.readyRunning = null;
+    if ( isShown(app) ) {
+      await app.render();
+      app.bringToFront?.();
+    }
+  }
+  return session.ready;
+}
+
+/**
+ * Put the findings of the check together.
+ * @param {object|null} trial
+ * @param {{players: object[], mine: object}} versions
+ * @returns {object}
+ */
+function buildReady(trial, versions) {
+  const state = collectState();
+  const title = id => game.modules.get(id)?.title ?? id;
+  const trialModules = (trial?.owners ?? []).map(o => ownerInfo(o.owner).title);
+  const playerModules = playerStore.byOwner({unreadOnly: true}).map(row => ownerInfo(row.owner).title);
+  const players = versions.players.filter(p => p.kinds.length).map(p => {
+    const lines = [];
+    if ( !p.answered ) lines.push(t("SUG.Ready.diff.silent"));
+    else {
+      const d = p.diff;
+      if ( d.core ) lines.push(t("SUG.Ready.diff.core", d.core));
+      if ( d.system ) lines.push(t("SUG.Ready.diff.system", d.system));
+      for ( const m of d.different ) lines.push(t("SUG.Ready.diff.different", {title: title(m.id), gm: m.gm, player: m.player}));
+      if ( d.missing.length ) lines.push(t("SUG.Ready.diff.missing", {names: d.missing.map(title).join(", ")}));
+      if ( d.extra.length ) lines.push(t("SUG.Ready.diff.extra", {names: d.extra.map(title).join(", ")}));
+    }
+    return {name: p.name, kinds: p.kinds, lines};
+  });
+  const fitProblems = findProblems({core: state.core, system: state.system, modules: state.modules})
+    .filter(p => p.severity === "problem").length;
+  const answer = readyAnswer({trialModules, playerModules, players, connected: versions.players.length, fitProblems, trialDone: !!trial});
+  return {at: new Date().toISOString(), answer, trialModules, playerModules, players, connected: versions.players.length, fitProblems};
 }
 
 /**

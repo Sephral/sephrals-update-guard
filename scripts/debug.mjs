@@ -5,6 +5,7 @@
 
 import {MODULE_ID, t} from "./config.mjs";
 import {DebugTrace, registerDebugMenu, registerDebugProvider} from "./debug-file.mjs";
+import {store as playerStore} from "./players.mjs";
 import {parseHistory} from "./snapshots.mjs";
 import {goodAfterMinutes, isRecorder} from "./state.mjs";
 import {log, watchState} from "./watch.mjs";
@@ -31,6 +32,9 @@ export function describeState() {
       compatibilityMode: CONFIG.compatibility?.mode, patterns: {
         include: CONFIG.compatibility?.includePatterns?.length ?? 0, exclude: CONFIG.compatibility?.excludePatterns?.length ?? 0}},
     errors: packages(log.errors, e => ({count: e.count, kinds: e.kinds})),
+    players: {collecting: !!game.settings.get(MODULE_ID, "collectPlayerErrors"), notice: !!game.settings.get(MODULE_ID, "playerNotice"),
+      entries: playerStore.entries.size, unread: playerStore.list({unreadOnly: true}).length,
+      byModule: Object.fromEntries(playerStore.byOwner().map(r => [r.owner, {count: r.count, players: r.players.length}]))},
     deprecated: packages(log.deprecations, e => ({count: e.count, until: e.until}))
   };
 }

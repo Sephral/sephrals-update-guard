@@ -25,6 +25,22 @@ export function suspectsSince(good, current, self = "") {
 }
 
 /**
+ * Put the modules that other evidence points at, for example errors in the players' browsers, first among the suspects.
+ * They come first, so the first rounds test them. A module that is not active or is never a suspect (self) is left out.
+ * @param {string[]} ids            The suspects from the changes
+ * @param {string[]} evidence       Module ids named by errors
+ * @param {string[]} active         Ids of the active modules
+ * @param {string} [self]
+ * @returns {{ids: string[], evidence: string[]}}   evidence holds the ids that were named and are suspects now
+ */
+export function withEvidence(ids, evidence, active, self = "") {
+  const on = new Set(active);
+  const named = [...new Set(evidence)].filter(id => on.has(id) && (id !== self));
+  const rest = ids.filter(id => !named.includes(id));
+  return {ids: [...named, ...rest], evidence: named};
+}
+
+/**
  * The given modules and everything that needs them: a module cannot stay on when one it requires is off.
  * @param {string[]} ids
  * @param {Record<string, string[]>} requires   Required module ids by module id

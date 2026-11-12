@@ -31,6 +31,14 @@
         "name": "Update Guard",
         "label": "Open Update Guard",
         "hint": "What changed since the last start, the check before an update and the way back."
+      },
+      "collectPlayerErrors": {
+        "name": "Errors of the players",
+        "hint": "Players' browsers report errors of modules to the GM: the module, a short message, a few stack lines and where it happened. Nothing personal is sent, and players see nothing of it. Applies to everyone in this world."
+      },
+      "playerNotice": {
+        "name": "Notice for errors of the players",
+        "hint": "A quiet notice for you when a player's browser reports a new error of a module during play."
       }
     },
     "gear": "Settings",
@@ -289,7 +297,12 @@
       "Watch": "The early watch for errors is not running.",
       "Probe": "The counter for deprecated calls is not in Foundry's compatibility patterns.",
       "Save": "Foundry cannot save a file from here.",
-      "CoreTexts": "Foundry texts used in the steps are missing: {keys}"
+      "CoreTexts": "Foundry texts used in the steps are missing: {keys}",
+      "Socket": "The module socket is missing.",
+      "Players": "The logic for the errors of the players does not work as expected.",
+      "PlayerSettings": "The settings for the errors of the players are not registered.",
+      "Repository": "The manifest of the module names no GitHub repository.",
+      "Loadouts": "Module Loadouts is active but its API has no saveCurrent."
     },
     "DEBUG": {
       "Title": "Debug file",
@@ -418,7 +431,8 @@
       "noneChangedText": "The problem stayed although all of them were off. All modules are back on.",
       "widen": "Search all other modules",
       "noneAllTitle": "It is not a module.",
-      "noneAllText": "The problem stayed although the modules were off. So it is in Foundry, the game system or the world itself."
+      "noneAllText": "The problem stayed although the modules were off. So it is in Foundry, the game system or the world itself.",
+      "introEvidence": "Errors from the browsers of the players point at {count} of them. Those are tested first."
     },
     "Off": {
       "button": "Switch off",
@@ -426,6 +440,98 @@
       "yes": "Switch off",
       "text": "{name} is switched off in this world and the world reloads. You can switch it on again in Foundry's module manager at any time.",
       "also": "These need it and go off with it: {names}."
+    },
+    "Players": {
+      "title": "Errors of the players",
+      "hint": "Players' browsers report errors of modules to you, with the module, the place and how often. Only a short message and a few stack lines are sent, nothing personal. Players see nothing of it.",
+      "off": "Reports from the players are switched off in the settings.",
+      "empty": "No errors reported by players so far.",
+      "new": "{count} not read yet",
+      "notice": "{user} has an error in {module}.",
+      "read": "Mark as read",
+      "clear": "Clear the list",
+      "stack": "Stack lines",
+      "where": {
+        "sheet": "Sheet {name}",
+        "window": "Window {name}",
+        "hook": "Hook {name}",
+        "script": "Script"
+      }
+    },
+    "Report": {
+      "title": "Report this problem",
+      "button": "Report this problem",
+      "noMessage": "No error message was recorded for this module.",
+      "issuesTitle": "Is it known already?",
+      "issuesText": "Looks for open issues in the module's repository on GitHub that match the error.",
+      "sends": "The button sends the name of the repository ({repo}) and the key words of the error ({terms}) to api.github.com, the public search of GitHub. Nothing else is sent, and nothing before your click.",
+      "lookup": "Look for open issues",
+      "noTerms": "The error message has no key words to search for.",
+      "loading": "Searching",
+      "failed": "The search did not work:",
+      "found": "These open issues may be the same problem:",
+      "foundHint": "Read them first. If one fits, add what you know there instead of opening a new issue.",
+      "none": "No open issue matches. The text below is ready for a new one.",
+      "noRepo": "No GitHub repository is known for this module. Copy the text and send it to the author.",
+      "textTitle": "Bug report text",
+      "textHint": "Versions, the error and the place it appeared. You can change it before you copy it. No player names are in it.",
+      "copy": "Copy text",
+      "copied": "Text copied.",
+      "open": "Open a new issue on GitHub",
+      "openHint": "Opens GitHub in a new tab with this text filled in. You send it there yourself.",
+      "openNote": "GitHub opens with the text filled in, and it is in your clipboard as well. Nothing is sent until you press the button on GitHub.",
+      "honest": "Update Guard sends nothing by itself. Open issues are looked up only after your click, and a report is sent only by you on GitHub.",
+      "comments": "Comments: {count}"
+    },
+    "Ready": {
+      "run": "Ready for tonight?",
+      "hint": "Runs the test run, collects the errors of the players and compares what the connected players run with your Foundry. One answer, one next step.",
+      "testing": "The test run is going on",
+      "askingPlayers": "Asking the connected players for their versions",
+      "failed": "The check stopped with an error, see the console.",
+      "notRun": "The test run did not finish.",
+      "errors": "Not yet. The test run found errors in: {names}.",
+      "playerErrors": "Not yet. Players had errors in: {names}.",
+      "versions": "Not yet. Some browsers run something else than yours: {players}.",
+      "fit": "Not yet. {count} packages no longer fit this Foundry, see below.",
+      "ready": "Ready for tonight.",
+      "readyAlone": "Ready for tonight. No players are connected, so only your side was checked.",
+      "connected": "{count} players are connected.",
+      "connectedOne": "One player is connected.",
+      "connectedNone": "No players are connected.",
+      "trialTitle": "Test run:",
+      "playerTitle": "Errors of the players:",
+      "versionTitle": "Different versions:",
+      "next": {
+        "run": "Start the test run first.",
+        "fixModules": "Switch the modules off or report the problem to their authors. The search finds the module behind a problem.",
+        "playerList": "Open the list of the players' errors below. Report the problem or switch the module off, then mark the list as read.",
+        "reload": "Ask the players named below to reload the page with F5. If that does not help, they clear the cache of their browser.",
+        "fitList": "The list below says what no longer fits.",
+        "play": "Nothing stands in your way. Have a good session."
+      },
+      "diff": {
+        "silent": "did not answer, probably an old page. Ask for a reload.",
+        "core": "Foundry {player}, yours is {gm}.",
+        "system": "System {player}, yours is {gm}.",
+        "different": "{title} {player}, yours is {gm}.",
+        "missing": "Missing there: {names}.",
+        "extra": "Only there: {names}."
+      }
+    },
+    "Safety": {
+      "summary": "Before you update: save the module list and make a backup",
+      "summaryUpdates": "Updates are available: save the module list and make a backup first",
+      "loadoutOn": "Module Loadouts is active. One click saves the active modules as a loadout, so you can come back to exactly this list.",
+      "loadoutOff": "Module Loadouts by Sephral is not active here. The export further down keeps the list of modules and versions.",
+      "save": "Save module list as loadout",
+      "manager": "Open Module Loadouts",
+      "saved": "Saved as the loadout \"{name}\".",
+      "failed": "The loadout could not be saved.",
+      "description": "Saved by Update Guard before an update.",
+      "backupOn": "Make a backup of what you cannot lose before you update. Content Backup & Restore is active: its entry is in the context menu of scenes, actors, items and journals.",
+      "backupOff": "Make a backup before you update. In Foundry's setup, \"{snapshot}\" saves everything, or copy the Data folder of Foundry.",
+      "backupLink": "About Content Backup & Restore"
     }
   }
 }

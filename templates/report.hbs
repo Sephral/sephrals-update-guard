@@ -1,0 +1,52 @@
+<div class="sug-shell">
+  <div class="sug-body">
+    <section class="sug-status sug-status-warn" data-section="report-head">
+      <i class="sug-status-icon fa-solid fa-bug" inert></i>
+      <div class="sug-status-text">
+        <strong data-report-title>{{title}} {{version}}</strong>
+        <span data-report-message>{{message}}</span>
+        {{#if where}}<span class="sug-muted">{{where}}</span>{{/if}}
+      </div>
+    </section>
+
+    <section class="sug-section" data-section="report-issues">
+      <h2>{{localize "SUG.Report.issuesTitle"}}</h2>
+      {{#if hasRepo}}
+      <p>{{localize "SUG.Report.issuesText"}}</p>
+      <p class="sug-muted" data-report-sends>{{sends}}</p>
+      <p class="sug-buttons">
+        <button type="button" class="sug-primary" data-action="lookupIssues" {{#unless hasTerms}}disabled{{/unless}} {{#if loading}}disabled{{/if}}><i class="fa-brands fa-github" inert></i> {{localize "SUG.Report.lookup"}}</button>
+      </p>
+      {{#unless hasTerms}}<p class="sug-muted">{{localize "SUG.Report.noTerms"}}</p>{{/unless}}
+      {{#if loading}}<p class="sug-muted" data-report-loading>{{localize "SUG.Report.loading"}}</p>{{/if}}
+      {{#if failed}}<p class="sug-bad" data-report-failed>{{localize "SUG.Report.failed"}} {{failed}}</p>{{/if}}
+      {{#if issues.length}}
+      <p data-report-found><strong>{{localize "SUG.Report.found"}}</strong></p>
+      <ul class="sug-list" data-report-issues>
+        {{#each issues}}
+        <li><a href="{{url}}" target="_blank" rel="noopener noreferrer">#{{number}} {{title}}</a> <span class="sug-muted">{{comments}}</span></li>
+        {{/each}}
+      </ul>
+      <p class="sug-muted">{{localize "SUG.Report.foundHint"}}</p>
+      {{/if}}
+      {{#if none}}<p data-report-none>{{localize "SUG.Report.none"}}</p>{{/if}}
+      {{else}}
+      <p data-report-norepo>{{localize "SUG.Report.noRepo"}}
+        {{#if pageUrl}}<a href="{{pageUrl}}" target="_blank" rel="noopener noreferrer">{{localize "SUG.link.page"}}</a>{{/if}}</p>
+      {{/if}}
+    </section>
+
+    <section class="sug-section" data-section="report-text">
+      <h2>{{localize "SUG.Report.textTitle"}}</h2>
+      <p class="sug-muted">{{localize "SUG.Report.textHint"}}</p>
+      <textarea name="reportText" class="sug-report-text" rows="14" spellcheck="false">{{body}}</textarea>
+      <p class="sug-buttons">
+        <button type="button" data-action="copyReport"><i class="fa-solid fa-copy" inert></i> {{localize "SUG.Report.copy"}}</button>
+        {{#if hasRepo}}<button type="button" class="sug-primary" data-action="openIssue" data-tooltip="{{localize "SUG.Report.openHint"}}"><i class="fa-brands fa-github" inert></i> {{localize "SUG.Report.open"}}</button>{{/if}}
+      </p>
+      {{#if hasRepo}}<p class="sug-muted">{{localize "SUG.Report.openNote"}}</p>{{/if}}
+    </section>
+
+    <p class="sug-honest">{{localize "SUG.Report.honest"}}</p>
+  </div>
+</div>

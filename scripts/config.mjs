@@ -87,3 +87,26 @@ export function addSettingsGear(frame) {
   if ( anchor ) anchor.before(gear);
   else header.append(gear);
 }
+
+/** Copy text to the clipboard. The clipboard API needs a secure page, a plain http server gets the old way. */
+export async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    const area = document.createElement("textarea");
+    area.value = text;
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.append(area);
+    area.select();
+    let ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch {
+      ok = false;
+    }
+    area.remove();
+    return ok;
+  }
+}

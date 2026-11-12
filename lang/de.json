@@ -31,6 +31,14 @@
         "name": "Update Guard",
         "label": "Update Guard öffnen",
         "hint": "Was sich seit dem letzten Start geändert hat, die Prüfung vor einem Update und der Weg zurück."
+      },
+      "collectPlayerErrors": {
+        "name": "Fehler der Spielenden",
+        "hint": "Die Browser der Spielenden melden Fehler von Modulen an die SL: das Modul, eine kurze Meldung, ein paar Zeilen des Aufrufwegs und wo es passiert ist. Es wird nichts Persönliches gesendet, und die Spielenden merken nichts davon. Gilt für alle in dieser Welt."
+      },
+      "playerNotice": {
+        "name": "Hinweis bei Fehlern der Spielenden",
+        "hint": "Ein leiser Hinweis für dich, wenn der Browser einer Person beim Spielen einen neuen Fehler eines Moduls meldet."
       }
     },
     "gear": "Einstellungen",
@@ -289,7 +297,12 @@
       "Watch": "Die frühe Beobachtung von Fehlern läuft nicht.",
       "Probe": "Der Zähler für veraltete Aufrufe steckt nicht in den Kompatibilitätsmustern von Foundry.",
       "Save": "Foundry kann von hier keine Datei speichern.",
-      "CoreTexts": "Foundry Texte für die Schritte fehlen: {keys}"
+      "CoreTexts": "Foundry Texte für die Schritte fehlen: {keys}",
+      "Socket": "Der Socket des Moduls fehlt.",
+      "Players": "Die Logik für die Fehler der Spielenden arbeitet nicht wie erwartet.",
+      "PlayerSettings": "Die Einstellungen für die Fehler der Spielenden sind nicht registriert.",
+      "Repository": "Im Manifest des Moduls steht kein GitHub Repository.",
+      "Loadouts": "Module Loadouts ist aktiv, aber seine API hat kein saveCurrent."
     },
     "DEBUG": {
       "Title": "Debug Datei",
@@ -418,7 +431,8 @@
       "noneChangedText": "Das Problem blieb, obwohl alle aus waren. Alle Module sind wieder an.",
       "widen": "Alle anderen Module durchsuchen",
       "noneAllTitle": "Es liegt an keinem Modul.",
-      "noneAllText": "Das Problem blieb, obwohl die Module aus waren. Dann steckt es in Foundry, im Spielsystem oder in der Welt selbst."
+      "noneAllText": "Das Problem blieb, obwohl die Module aus waren. Dann steckt es in Foundry, im Spielsystem oder in der Welt selbst.",
+      "introEvidence": "Fehler aus den Browsern der Spielenden zeigen auf {count} davon. Die werden zuerst getestet."
     },
     "Off": {
       "button": "Ausschalten",
@@ -426,6 +440,98 @@
       "yes": "Ausschalten",
       "text": "{name} wird in dieser Welt ausgeschaltet, die Welt lädt neu. Du kannst es jederzeit in Foundrys Modulverwaltung wieder einschalten.",
       "also": "Das braucht es, deshalb geht mit aus: {names}."
+    },
+    "Players": {
+      "title": "Fehler der Spielenden",
+      "hint": "Die Browser der Spielenden melden dir Fehler von Modulen, mit dem Modul, dem Ort und wie oft. Gesendet werden nur eine kurze Meldung und ein paar Zeilen des Aufrufwegs, nichts Persönliches. Die Spielenden merken nichts davon.",
+      "off": "Meldungen der Spielenden sind in den Einstellungen ausgeschaltet.",
+      "empty": "Bisher hat niemand einen Fehler gemeldet.",
+      "new": "{count} noch nicht gelesen",
+      "notice": "{user} hat einen Fehler in {module}.",
+      "read": "Als gelesen markieren",
+      "clear": "Liste leeren",
+      "stack": "Zeilen des Aufrufwegs",
+      "where": {
+        "sheet": "Bogen {name}",
+        "window": "Fenster {name}",
+        "hook": "Hook {name}",
+        "script": "Skript"
+      }
+    },
+    "Report": {
+      "title": "Problem melden",
+      "button": "Problem melden",
+      "noMessage": "Für dieses Modul wurde keine Fehlermeldung festgehalten.",
+      "issuesTitle": "Ist es schon bekannt?",
+      "issuesText": "Sucht im Repository des Moduls auf GitHub nach offenen Issues, die zum Fehler passen.",
+      "sends": "Der Knopf sendet den Namen des Repositorys ({repo}) und die Stichworte des Fehlers ({terms}) an api.github.com, die öffentliche Suche von GitHub. Mehr wird nicht gesendet, und vor deinem Klick nichts.",
+      "lookup": "Offene Issues suchen",
+      "noTerms": "In der Fehlermeldung stehen keine Stichworte, nach denen sich suchen ließe.",
+      "loading": "Suche läuft",
+      "failed": "Die Suche hat nicht geklappt:",
+      "found": "Diese offenen Issues könnten dasselbe Problem sein:",
+      "foundHint": "Lies sie zuerst. Passt eines, ergänze dort, was du weißt, statt ein neues Issue zu öffnen.",
+      "none": "Kein offenes Issue passt. Der Text unten ist für ein neues bereit.",
+      "noRepo": "Für dieses Modul ist kein GitHub Repository bekannt. Kopiere den Text und schick ihn an den Autor.",
+      "textTitle": "Text für den Fehlerbericht",
+      "textHint": "Versionen, der Fehler und der Ort, an dem er aufgetreten ist. Du kannst ihn ändern, bevor du ihn kopierst. Namen von Spielenden stehen nicht drin.",
+      "copy": "Text kopieren",
+      "copied": "Text kopiert.",
+      "open": "Neues Issue auf GitHub öffnen",
+      "openHint": "Öffnet GitHub in einem neuen Tab mit diesem Text. Abschicken musst du dort selbst.",
+      "openNote": "GitHub öffnet sich mit dem ausgefüllten Text, und er liegt auch in deiner Zwischenablage. Gesendet wird erst, wenn du auf GitHub den Knopf drückst.",
+      "honest": "Update Guard sendet von allein nichts. Offene Issues werden erst nach deinem Klick gesucht, und einen Bericht schickst nur du selbst auf GitHub ab.",
+      "comments": "Kommentare: {count}"
+    },
+    "Ready": {
+      "run": "Bereit für heute Abend?",
+      "hint": "Macht den Probelauf, sammelt die Fehler der Spielenden und vergleicht, was die angemeldeten Spielenden laufen haben, mit deinem Foundry. Eine Antwort, ein nächster Schritt.",
+      "testing": "Der Probelauf läuft",
+      "askingPlayers": "Die angemeldeten Spielenden werden nach ihren Versionen gefragt",
+      "failed": "Die Prüfung ist mit einem Fehler abgebrochen, Einzelheiten stehen in der Konsole.",
+      "notRun": "Der Probelauf wurde nicht fertig.",
+      "errors": "Noch nicht. Der Probelauf hat Fehler gefunden in: {names}.",
+      "playerErrors": "Noch nicht. Spielende hatten Fehler in: {names}.",
+      "versions": "Noch nicht. Manche Browser laufen anders als deiner: {players}.",
+      "fit": "Noch nicht. {count} Pakete passen nicht mehr zu diesem Foundry, siehe unten.",
+      "ready": "Bereit für heute Abend.",
+      "readyAlone": "Bereit für heute Abend. Es ist niemand angemeldet, deshalb wurde nur deine Seite geprüft.",
+      "connected": "{count} Spielende sind angemeldet.",
+      "connectedOne": "Eine Person ist angemeldet.",
+      "connectedNone": "Niemand ist angemeldet.",
+      "trialTitle": "Probelauf:",
+      "playerTitle": "Fehler der Spielenden:",
+      "versionTitle": "Abweichende Versionen:",
+      "next": {
+        "run": "Starte zuerst den Probelauf.",
+        "fixModules": "Schalte die Module aus oder melde das Problem den Autoren. Die Suche findet das Modul hinter einem Problem.",
+        "playerList": "Öffne unten die Liste der Fehler der Spielenden. Melde das Problem oder schalte das Modul aus und markiere die Liste dann als gelesen.",
+        "reload": "Bitte die unten genannten Spielenden, die Seite mit F5 neu zu laden. Hilft das nicht, leeren sie den Cache ihres Browsers.",
+        "fitList": "Die Liste unten sagt, was nicht mehr passt.",
+        "play": "Dir steht nichts im Weg. Viel Spaß bei der Runde."
+      },
+      "diff": {
+        "silent": "hat nicht geantwortet, vermutlich eine alte Seite. Bitte um einen Neustart der Seite.",
+        "core": "Foundry {player}, bei dir {gm}.",
+        "system": "System {player}, bei dir {gm}.",
+        "different": "{title} {player}, bei dir {gm}.",
+        "missing": "Fehlt dort: {names}.",
+        "extra": "Nur dort: {names}."
+      }
+    },
+    "Safety": {
+      "summary": "Vor dem Update: Modulliste sichern und ein Backup machen",
+      "summaryUpdates": "Es gibt Updates: sichere zuerst die Modulliste und mach ein Backup",
+      "loadoutOn": "Module Loadouts ist aktiv. Ein Klick speichert die aktiven Module als Loadout, damit du genau zu dieser Liste zurückkommst.",
+      "loadoutOff": "Module Loadouts von Sephral ist hier nicht aktiv. Der Export weiter unten hält die Liste der Module und Versionen fest.",
+      "save": "Modulliste als Loadout speichern",
+      "manager": "Module Loadouts öffnen",
+      "saved": "Als Loadout \"{name}\" gespeichert.",
+      "failed": "Das Loadout konnte nicht gespeichert werden.",
+      "description": "Von Update Guard vor einem Update gespeichert.",
+      "backupOn": "Mach vor dem Update ein Backup von dem, was du nicht verlieren darfst. Content Backup & Restore ist aktiv: Du findest es im Kontextmenü von Szenen, Akteuren, Gegenständen und Journalen.",
+      "backupOff": "Mach vor dem Update ein Backup. In Foundrys Setup sichert \"{snapshot}\" alles, oder kopiere den Data Ordner von Foundry.",
+      "backupLink": "Über Content Backup & Restore"
     }
   }
 }

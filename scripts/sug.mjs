@@ -1,9 +1,12 @@
 import {MODULE_ID, TESTED_VERSIONS, setting, t} from "./config.mjs";
 import {registerDebug} from "./debug.mjs";
 import {saveDebugFile} from "./debug-file.mjs";
-import {exportData, openGuard, refreshGuard, runCheck, startTrial} from "./guard-app.mjs";
+import {errorFor, exportData, lastReady, openGuard, refreshGuard, runCheck, startReady, startTrial} from "./guard-app.mjs";
 import {registerHubModule} from "./hub.mjs";
 import {applyModuleLanguage} from "./language.mjs";
+import {requestVersions, startPlayers, store as playerStore} from "./players.mjs";
+import {describeReport, openReport} from "./report-app.mjs";
+import {saveModuleList} from "./safety.mjs";
 import {readSearch} from "./search.mjs";
 import {noticeNewVersions, runSelfTest} from "./selftest.mjs";
 import {changeLanguage, registerSettings} from "./settings.mjs";
@@ -29,8 +32,8 @@ Hooks.once("init", () => {
   // Counted only on the active GM's client, like every Sephral module
   registerUsage(MODULE_ID, {
     features: ["windowOpened", "mapShown", "checkRun", "onlineCheck", "exportMade", "rollbackShown", "trialRun", "searchStarted",
-      "searchFound", "moduleOff"],
-    settings: ["theme", "windowMode", "goodAfter"]
+      "searchFound", "moduleOff", "readyRun", "playerErrorSeen", "reportOpened", "issueLookup", "loadoutSaved"],
+    settings: ["theme", "windowMode", "goodAfter", "collectPlayerErrors", "playerNotice"]
   });
   registerDebug();
   registerKeys();
@@ -49,6 +52,29 @@ Hooks.once("init", () => {
      * in the world is changed.
      */
     trial: () => startTrial(),
+    /**
+     * "Ready for tonight?" (GM): the test run, the errors of the players that are not read yet and the versions their
+     * browsers run, with one answer. Returns {at, answer, trialModules, playerModules, players, connected, fitProblems}.
+     */
+    ready: () => startReady(),
+    /** The result of the last "Ready for tonight?" check, or null. */
+    lastReady: () => lastReady(),
+    /** The errors that players' browsers reported (GM), newest first: module, player, message, where, count. */
+    playerErrors: () => (game.user.isGM ? playerStore.list().map(e => ({...e})) : []),
+    /** Ask the connected players' browsers which versions they run and compare with this browser (GM). */
+    playerVersions: options => requestVersions(options),
+    /**
+     * Open "Report this problem" for a module (GM). Options: {kind: "module" | "system", key: key of an error of a player}.
+     * Nothing is sent until the GM clicks in the window.
+     */
+    report: (id, options = {}) => openReport({id, kind: options.kind, error: errorFor(id, options.key)}),
+    /** The bug report text for a module as data: {text: {title, body}, repo, terms}. Sends nothing. */
+    reportText: (id, options = {}) => {
+      const {text, repo, terms} = describeReport({id, kind: options.kind, error: errorFor(id, options.key)});
+      return {text, repo, terms};
+    },
+    /** Save the active modules as a loadout of Module Loadouts, when that module is active (GM). */
+    saveModuleList: () => saveModuleList(),
     /** The current state of the installation as plain data. */
     snapshot: () => collectState(),
     /** The stored history of states, newest first. */
@@ -74,6 +100,7 @@ Hooks.once("i18nInit", () => {
 Hooks.once("ready", async () => {
   await languageReady;
   installProbe();
+  startPlayers({changed: refreshGuard});
   noticeNewVersions();
   if ( !game.user.isGM || !isRecorder() ) return;
   // During a search the world starts with fewer modules on purpose: nothing is recorded, the GM goes on with the search

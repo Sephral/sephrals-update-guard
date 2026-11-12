@@ -5,7 +5,8 @@
  */
 
 import {MODULE_ID} from "./config.mjs";
-import {advanceSearch, beginSearch, isSearch, restoredConfig, searchConfig, suspectsSince, withDependents} from "./culprit.mjs";
+import {advanceSearch, beginSearch, isSearch, restoredConfig, searchConfig, suspectsSince, withDependents, withEvidence} from "./culprit.mjs";
+import {playerEvidence} from "./players.mjs";
 import {lastGood} from "./snapshots.mjs";
 import {collectState, readHistory} from "./state.mjs";
 
@@ -46,15 +47,22 @@ async function apply(config, search) {
 
 /**
  * Who is under suspicion: the modules that changed since the last state that ran well, otherwise every active module.
- * @returns {{ids: string[], scope: "changed"|"all", since: string}}
+ * Modules that errors in the players' browsers point at come first, and are suspects even when nothing changed in them.
+ * @returns {{ids: string[], scope: "changed"|"all", since: string, evidence: string[]}}
  */
 export function suspects() {
   const state = collectState();
   const history = readHistory();
   const reference = lastGood(history.slice(1)) ?? history[1] ?? null;
+  const active = state.modules.filter(m => m.active).map(m => m.id);
   const changed = suspectsSince(reference, state, MODULE_ID);
-  if ( changed.length ) return {ids: changed, scope: "changed", since: reference.goodAt ?? reference.at};
-  return {ids: state.modules.filter(m => m.active && (m.id !== MODULE_ID)).map(m => m.id), scope: "all", since: ""};
+  const hints = playerEvidence();
+  if ( changed.length ) {
+    const found = withEvidence(changed, hints, active, MODULE_ID);
+    return {ids: found.ids, scope: "changed", since: reference.goodAt ?? reference.at, evidence: found.evidence};
+  }
+  const found = withEvidence(active.filter(id => id !== MODULE_ID), hints, active, MODULE_ID);
+  return {ids: found.ids, scope: "all", since: "", evidence: found.evidence};
 }
 
 /** Start a search with the given suspects. */

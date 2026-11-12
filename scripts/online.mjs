@@ -14,6 +14,7 @@
 
 import {cleanCompat} from "./rating.mjs";
 import {forgePackageApi, githubTagApi, isPackageId, safeHttpUrl, tagCandidates} from "./links.mjs";
+import {issueSearchUrl, parseIssues} from "./report-data.mjs";
 import {hasVersion} from "./versions.mjs";
 
 /** How long answers stay in memory: one hour. */
@@ -256,6 +257,24 @@ export class OnlineChecker {
       await this.sleep(this.delay);
     }
     return {state: "notFound"};
+  }
+
+  /**
+   * Open issues of a repository that match the key words of an error.
+   * @param {{owner: string, repo: string}} repo
+   * @param {string[]} terms
+   * @returns {Promise<{state: "ok"|"error", total?: number, issues?: object[], error?: string, detail?: string}>}
+   */
+  issues(repo, terms) {
+    if ( !terms.length ) return Promise.resolve({state: "ok", total: 0, issues: []});
+    const url = issueSearchUrl(repo, terms);
+    return this.#cached(`issues:${url}`, async () => {
+      const {status, json} = await this.#getJson(url, {headers: {Accept: "application/vnd.github+json"}});
+      if ( status !== 200 ) throw codeError("http", String(status));
+      const parsed = parseIssues(json);
+      if ( !parsed ) throw codeError("invalid");
+      return {state: "ok", ...parsed};
+    });
   }
 
   /**

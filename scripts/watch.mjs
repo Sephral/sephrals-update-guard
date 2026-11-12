@@ -66,7 +66,7 @@ function ownerOfError(error, filename = "") {
  * @param {*} error
  */
 export function noteError(error) {
-  log.addError(ownerOfError(error), "error", error?.message ?? error);
+  log.addError(ownerOfError(error), "error", error?.message ?? error, undefined, {stack: error?.stack});
 }
 
 /**
@@ -120,7 +120,8 @@ export function startWatch() {
     window.addEventListener("error", event => {
       try {
         if ( !(event instanceof ErrorEvent) ) return;
-        log.addError(ownerOfError(event.error, event.filename), "error", event.error?.message ?? event.message);
+        log.addError(ownerOfError(event.error, event.filename), "error", event.error?.message ?? event.message, undefined,
+          {stack: event.error?.stack || `at ${event.filename}:${event.lineno}:${event.colno}`});
       } catch {
         // The watch never throws
       }
@@ -128,7 +129,7 @@ export function startWatch() {
     window.addEventListener("unhandledrejection", event => {
       try {
         const reason = event.reason;
-        log.addError(ownerOfError(reason), "rejection", reason?.message ?? reason);
+        log.addError(ownerOfError(reason), "rejection", reason?.message ?? reason, undefined, {stack: reason?.stack});
       } catch {
         // The watch never throws
       }
@@ -140,7 +141,8 @@ export function startWatch() {
       try {
         const cause = error?.cause ?? error;
         const where = data?.hook ? ` (${data.hook})` : "";
-        log.addError(ownerOfError(error), "hook", `${cause?.message ?? error?.message ?? ""}${where}`);
+        log.addError(ownerOfError(error), "hook", `${cause?.message ?? error?.message ?? ""}${where}`, undefined,
+          {stack: cause?.stack ?? error?.stack, hook: data?.hook});
       } catch {
         // The watch never throws
       }

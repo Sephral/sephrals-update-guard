@@ -3,10 +3,34 @@
  */
 
 import {MODULE_ID, TESTED_VERSIONS, esc, t} from "./config.mjs";
+import {ErrorGate, PlayerErrorStore, buildReport, compareVersions, readReport, sanitizeMessage} from "./player-data.mjs";
+import {repositoryOf} from "./report-data.mjs";
 import {parseHistory} from "./snapshots.mjs";
 import {availabilityName, collectState} from "./state.mjs";
 import {isNewer} from "./versions.mjs";
 import {watchState} from "./watch.mjs";
+
+/**
+ * Does the logic for the errors of the players work: the clean message, the gate, the list and the comparison?
+ * @returns {boolean}
+ */
+function playersLogicWorks() {
+  try {
+    const clean = sanitizeMessage("Failed at http://example.test:30000/modules/a/b.js for C:\\Users\\someone\\x");
+    const report = buildReport({owner: "module:a", kind: "error", message: clean, stack: "Error\n    at f (http://x.test/modules/a/b.js:1:2)"});
+    const gate = new ErrorGate();
+    const first = gate.add(report, 0);
+    const again = gate.add(report, 1000);
+    const store = new PlayerErrorStore();
+    const stored = store.add({id: "u", name: "n"}, readReport(report));
+    const diff = compareVersions({core: "1", system: {id: "s", version: "1"}, modules: [["a", "1"]]},
+      {core: "1", system: {id: "s", version: "1"}, modules: [["a", "2"]]});
+    return !/example\.test|someone/.test(clean) && (first.length === 1) && (again.length === 0) && !!stored?.isNew
+      && (diff.different.length === 1) && PlayerErrorStore.parse(store.serialize()).entries.size === 1;
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Run all checks.
@@ -47,10 +71,18 @@ async function checkAll() {
   check(watchState.listeners && watchState.hook, "SUG.SELFTEST.Watch");
   check(watchState.probeInstalled && CONFIG.compatibility?.excludePatterns?.includes(watchState.probe), "SUG.SELFTEST.Probe");
   check(typeof foundry.utils?.saveDataToFile === "function", "SUG.SELFTEST.Save");
+  check(typeof game.socket?.emit === "function" && !!game.modules.get(MODULE_ID)?.socket, "SUG.SELFTEST.Socket");
+  check(playersLogicWorks(), "SUG.SELFTEST.Players");
+  check(typeof game.settings.settings.has === "function" && ["collectPlayerErrors", "playerNotice", "playerErrors"]
+    .every(key => game.settings.settings.has(`${MODULE_ID}.${key}`)), "SUG.SELFTEST.PlayerSettings");
+  check(!!repositoryOf({url: game.modules.get(MODULE_ID)?.url}), "SUG.SELFTEST.Repository");
+  const loadouts = game.modules.get("sephrals-module-loadouts");
+  check(!loadouts?.active || (typeof loadouts.api?.saveCurrent === "function"), "SUG.SELFTEST.Loadouts");
   const coreKeys = ["SETUP.BACKUPS.CreateSnapshot", "SETUP.Modules", "SETUP.InstallModule", "SETUP.ManifestURL", "GAME.ReturnSetup"];
   const coreMissing = coreKeys.filter(key => !game.i18n.has(key));
   check(!coreMissing.length, "SUG.SELFTEST.CoreTexts", {keys: coreMissing.join(", ")});
-  const keys = ["SUG.gear", "SUG.SELFTEST.Title", "SUG.Window.title", "SUG.Honest"];
+  const keys = ["SUG.gear", "SUG.SELFTEST.Title", "SUG.Window.title", "SUG.Honest", "SUG.Players.title", "SUG.Report.title",
+    "SUG.Ready.run", "SUG.Safety.save"];
   const missing = keys.filter(key => !game.i18n.has(key));
   check(!missing.length, "SUG.SELFTEST.Texts", {keys: missing.join(", ")});
   return {problems, checks};

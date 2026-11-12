@@ -28,6 +28,7 @@
         {{/if}}
         {{#if search.found}}
         <button type="button" class="sug-primary" data-action="searchStop" data-keep="{{search.culprit}}"><i class="fa-solid fa-power-off" inert></i> {{search.keepOff}}</button>
+        <button type="button" data-action="reportBug" data-id="{{search.culprit}}"><i class="fa-solid fa-bug" inert></i> {{localize "SUG.Report.button"}}</button>
         <button type="button" data-action="searchStop"><i class="fa-solid fa-rotate-left" inert></i> {{localize "SUG.Search.restoreAll"}}</button>
         {{/if}}
         {{#if search.none}}
@@ -49,12 +50,37 @@
         {{#if trial.running}}
         <span class="sug-muted" data-progress>{{trial.progress}}</span>
         {{else}}
-        <button type="button" class="sug-primary" data-action="runTrial"  data-tooltip="{{localize "SUG.Trial.hint"}}"><i class="fa-solid fa-play" inert></i> {{localize "SUG.Trial.run"}}</button>
+        {{#if ready.running}}
+        <span class="sug-muted" data-progress>{{ready.progress}}</span>
+        {{else}}
+        <button type="button" class="sug-primary" data-action="runReady" data-tooltip="{{localize "SUG.Ready.hint"}}"><i class="fa-solid fa-flag-checkered" inert></i> {{localize "SUG.Ready.run"}}</button>
+        {{/if}}
+        <button type="button" data-action="runTrial"  data-tooltip="{{localize "SUG.Trial.hint"}}"><i class="fa-solid fa-play" inert></i> {{localize "SUG.Trial.run"}}</button>
         <button type="button" data-action="startSearch" {{#if search}}disabled{{/if}}
           data-tooltip="{{localize "SUG.Search.hint"}}"><i class="fa-solid fa-magnifying-glass" inert></i> {{localize "SUG.Search.start"}}</button>
         {{/if}}
       </div>
     </section>
+
+    {{#if ready}}{{#unless ready.running}}
+    <section class="sug-status sug-status-{{ready.level}}" data-section="ready" data-key="{{ready.key}}">
+      <i class="sug-status-icon fa-solid {{ready.icon}}" inert></i>
+      <div class="sug-status-text">
+        <strong data-ready-line>{{ready.headline}}</strong>
+        <span data-ready-next>{{ready.next}}</span>
+        <span class="sug-muted">{{ready.connected}} {{ready.at}}</span>
+        {{#if ready.trial.length}}<span data-ready-trial><em>{{ready.trialTitle}}</em> {{#each ready.trial}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</span>{{/if}}
+        {{#if ready.playerModules.length}}<span data-ready-players><em>{{ready.playerTitle}}</em> {{#each ready.playerModules}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</span>{{/if}}
+        {{#if ready.fit}}<span>{{ready.fit}}</span>{{/if}}
+        {{#if ready.hasPlayers}}
+        <span data-ready-versions><em>{{ready.versionTitle}}</em></span>
+        <ul class="sug-list sug-ready-versions">
+          {{#each ready.players}}<li><strong>{{name}}</strong>{{#each lines}} <span class="sug-muted">{{this}}</span>{{/each}}</li>{{/each}}
+        </ul>
+        {{/if}}
+      </div>
+    </section>
+    {{/unless}}{{/if}}
 
     {{#if trial.shown}}
     <section class="sug-section" data-section="trial">
@@ -66,7 +92,8 @@
         <li data-module="{{id}}" class="sug-bad">
           <div class="sug-row"><strong>{{title}}</strong> <span class="sug-count">{{count}}</span>
             <span class="sug-muted">{{where}}</span>
-            {{#if canOff}}<button type="button" class="sug-end" data-action="switchOff" data-id="{{id}}">{{localize "SUG.Off.button"}}</button>{{/if}}</div>
+            {{#if canReport}}<button type="button" class="sug-end" data-action="reportBug" data-id="{{id}}"><i class="fa-solid fa-bug" inert></i> {{localize "SUG.Report.button"}}</button>{{/if}}
+            {{#if canOff}}<button type="button" data-action="switchOff" data-id="{{id}}">{{localize "SUG.Off.button"}}</button>{{/if}}</div>
           <div class="sug-message">{{message}}</div>
         </li>
         {{/each}}
@@ -108,7 +135,8 @@
         <li data-module="{{id}}">
           <div class="sug-row"><strong>{{title}}</strong> <span class="sug-count">{{count}}</span>
             <span class="sug-muted">{{kinds}}</span>
-            {{#if canOff}}<button type="button" class="sug-end" data-action="switchOff" data-id="{{id}}">{{localize "SUG.Off.button"}}</button>{{/if}}</div>
+            {{#if canReport}}<button type="button" class="sug-end" data-action="reportBug" data-id="{{id}}"><i class="fa-solid fa-bug" inert></i> {{localize "SUG.Report.button"}}</button>{{/if}}
+            {{#if canOff}}<button type="button" data-action="switchOff" data-id="{{id}}">{{localize "SUG.Off.button"}}</button>{{/if}}</div>
           <div class="sug-message"><span class="sug-muted">{{localize "SUG.Errors.first"}}</span> {{message}}</div></li>
         {{/each}}
       </ul>
@@ -116,6 +144,41 @@
     </section>
     {{/if}}
     {{#if otherErrors}}<p class="sug-muted" data-other-errors>{{localize "SUG.Errors.other"}}: {{otherErrors}}</p>{{/if}}
+
+    {{#if players.shown}}
+    <section class="sug-section" data-section="player-errors">
+      <h2>{{localize "SUG.Players.title"}} {{#if players.unread}}<span class="sug-count" data-players-new>{{players.unread}}</span>{{/if}}</h2>
+      <p class="sug-muted">{{players.hint}}</p>
+      {{#unless players.any}}{{#if players.on}}<p class="sug-empty" data-empty="players">{{players.empty}}</p>{{/if}}{{/unless}}
+      {{#each players.groups}}
+      <div class="sug-player" data-player="{{userName}}">
+        <h3><i class="fa-solid fa-user" inert></i> {{userName}}</h3>
+        <ul class="sug-list sug-trouble">
+          {{#each modules}}
+          <li data-module="{{id}}">
+            <div class="sug-row"><strong>{{title}}</strong> <span class="sug-count">{{count}}</span>
+              {{#if canReport}}<button type="button" class="sug-end" data-action="reportBug" data-id="{{id}}" data-key="{{errors.0.key}}"><i class="fa-solid fa-bug" inert></i> {{localize "SUG.Report.button"}}</button>{{/if}}
+              {{#if canOff}}<button type="button" data-action="switchOff" data-id="{{id}}">{{localize "SUG.Off.button"}}</button>{{/if}}</div>
+            {{#each errors}}
+            <div class="sug-player-error{{#if isNew}} sug-unread{{/if}}" data-error-key="{{key}}">
+              <div class="sug-message">{{message}}</div>
+              <div class="sug-muted" data-error-meta>{{meta}}</div>
+              {{#if hasStack}}<details class="sug-evidence"><summary>{{localize "SUG.Players.stack"}}</summary><pre class="sug-stack">{{stack}}</pre></details>{{/if}}
+            </div>
+            {{/each}}
+          </li>
+          {{/each}}
+        </ul>
+      </div>
+      {{/each}}
+      {{#if players.any}}
+      <p class="sug-buttons">
+        {{#if players.unread}}<button type="button" data-action="readPlayers"><i class="fa-solid fa-check" inert></i> {{localize "SUG.Players.read"}}</button>{{/if}}
+        <button type="button" data-action="clearPlayers"><i class="fa-solid fa-trash" inert></i> {{localize "SUG.Players.clear"}}</button>
+      </p>
+      {{/if}}
+    </section>
+    {{/if}}
     {{#if compatNote}}<p class="sug-muted">{{compatNote}}</p>{{/if}}
 
     {{#if hasPrevious}}
@@ -178,6 +241,18 @@
         {{/if}}
       </div>
     </section>
+    <details class="sug-fold sug-safety{{#if safety.updates}} sug-safety-open{{/if}}" data-section="safety" {{#if safety.open}}open{{/if}}>
+      <summary><i class="fa-solid fa-life-ring" inert></i> {{safety.summary}}</summary>
+      <p data-safety-loadout>{{safety.loadoutHint}}</p>
+      <p class="sug-buttons">
+        {{#if safety.loadouts}}<button type="button" class="sug-primary" data-action="saveLoadout"><i class="fa-solid fa-floppy-disk" inert></i> {{localize "SUG.Safety.save"}}</button>{{/if}}
+        {{#if safety.openManager}}<button type="button" data-action="openLoadouts"><i class="fa-solid fa-layer-group" inert></i> {{localize "SUG.Safety.manager"}}</button>{{/if}}
+      </p>
+      {{#if safety.saved}}<p class="sug-verify sug-verify-found" data-safety-saved>{{safety.saved}}</p>{{/if}}
+      {{#if safety.savedFailed}}<p class="sug-bad" data-safety-failed>{{safety.savedFailed}}</p>{{/if}}
+      <p data-safety-backup>{{safety.backupHint}}
+        {{#if safety.backup}}<a href="{{safety.backupLink}}" target="_blank" rel="noopener noreferrer">{{localize "SUG.Safety.backupLink"}}</a>{{/if}}</p>
+    </details>
     {{#unless targetValid}}<p class="sug-bad">{{localize "SUG.Check.invalidTarget"}}</p>{{/unless}}
     {{#if running}}<p class="sug-muted" data-progress>{{progress}}</p>{{/if}}
 
