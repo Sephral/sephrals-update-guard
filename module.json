@@ -1,0 +1,36 @@
+{
+  "id": "sephrals-update-guard",
+  "title": "Sephral’s Update Guard",
+  "description": "Is your world still working after an update? A test run shows it in half a minute, the search finds the module behind a problem, and you see what is ready for the next Foundry and how to get back.",
+  "version": "1.0.0",
+  "library": true,
+  "compatibility": {
+    "minimum": 13,
+    "verified": "14.370"
+  },
+  "authors": [
+    {
+      "name": "Sephral",
+      "url": "https://github.com/Sephral"
+    }
+  ],
+  "url": "https://github.com/Sephral/sephrals-update-guard.git",
+  "esmodules": [
+    "scripts/sug.mjs"
+  ],
+  "styles": [
+    "styles/sug.css"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    },
+    {
+      "lang": "de",
+      "name": "Deutsch",
+      "path": "lang/de.json"
+    }
+  ]
+}

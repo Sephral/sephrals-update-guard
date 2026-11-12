@@ -1,0 +1,617 @@
+/* Sephral’s Update Guard */
+
+/* Colors: the warm signature look by default, the dark Foundry look per user */
+.sug-app {
+  --sug-paper: #fbf6ea;
+  --sug-paper-2: #f3ecde;
+  --sug-card: rgb(255 250 240 / 0.92);
+  --sug-ink: #1f1a17;
+  --sug-muted: #6f655d;
+  --sug-line: rgb(73 49 32 / 0.14);
+  --sug-soft: rgb(73 49 32 / 0.07);
+  --sug-field: #fffdf7;
+  --sug-accent: #9c3b22;
+  --sug-accent-soft: rgb(156 59 34 / 0.12);
+  --sug-on-accent: #fffaf0;
+  --sug-radius: 12px;
+  --sug-thumb: #3b332d;
+  --sug-good: #2f8450;
+  --sug-warn: #c08a14;
+  --sug-bad: #b0342a;
+}
+
+.sug-app[data-sug-theme="foundry"] {
+  --sug-paper: #24211e;
+  --sug-paper-2: #1c1a18;
+  --sug-card: rgb(255 255 255 / 0.05);
+  --sug-ink: #ece5d8;
+  --sug-muted: #aba191;
+  --sug-line: rgb(255 255 255 / 0.12);
+  --sug-soft: rgb(255 255 255 / 0.06);
+  --sug-field: rgb(0 0 0 / 0.25);
+  --sug-accent: #d8784e;
+  --sug-accent-soft: rgb(216 120 78 / 0.18);
+  --sug-on-accent: #1c1a18;
+  --sug-radius: 6px;
+  --sug-thumb: #111;
+  --sug-good: #62c384;
+  --sug-warn: #e6bd63;
+  --sug-bad: #f08a7e;
+}
+
+.sug-app .window-content {
+  padding: 0;
+  background: linear-gradient(180deg, var(--sug-paper) 0%, var(--sug-paper-2) 100%);
+  color: var(--sug-ink);
+}
+
+
+/* .sug-app is set on every window of the module, with data-sug-theme="signature|foundry" */
+
+/* Shell, tabs and body */
+.sug-app .sug-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.sug-app .sug-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  padding: 10px 14px 0;
+  border-bottom: 1px solid var(--sug-line);
+  flex: none;
+}
+
+.sug-app .sug-tab {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  padding: 7px 12px 8px;
+  border-radius: var(--sug-radius) var(--sug-radius) 0 0;
+  color: var(--sug-muted);
+  font-weight: 600;
+  border: 1px solid transparent;
+  border-bottom: none;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.sug-app .sug-tab-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 14px;
+}
+
+.sug-app .sug-tab-answer {
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--sug-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sug-app .sug-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex: none;
+  background: var(--sug-muted);
+}
+
+.sug-app .sug-dot-good { background: var(--sug-good); }
+.sug-app .sug-dot-warn { background: var(--sug-warn); }
+.sug-app .sug-dot-bad { background: var(--sug-bad); }
+
+.sug-app .sug-tab:hover,
+.sug-app .sug-tab:focus-visible {
+  color: var(--sug-ink);
+  background: var(--sug-soft);
+}
+
+.sug-app .sug-tab.active {
+  color: var(--sug-accent);
+  background: var(--sug-card);
+  border-color: var(--sug-line);
+  margin-bottom: -1px;
+}
+
+.sug-app .sug-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 12px 16px 20px;
+}
+
+.sug-app h2 {
+  margin: 18px 0 6px;
+  font-size: 15px;
+  color: var(--sug-ink);
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sug-app h3 {
+  margin: 12px 0 4px;
+  font-size: 13px;
+  color: var(--sug-muted);
+  border: none;
+  text-transform: none;
+}
+
+.sug-app .sug-section:first-of-type h2 {
+  margin-top: 8px;
+}
+
+.sug-app p {
+  margin: 4px 0;
+}
+
+.sug-app a {
+  color: var(--sug-accent);
+  margin-left: 8px;
+  font-weight: 600;
+}
+
+.sug-app .sug-muted {
+  color: var(--sug-muted);
+}
+
+.sug-app .sug-honest {
+  color: var(--sug-muted);
+  font-size: 11.5px;
+  margin: 18px 0 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--sug-line);
+}
+
+/* One sentence and the next step on top of every tab */
+.sug-app .sug-status {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 4px 14px;
+  padding: 12px 14px;
+  background: var(--sug-card);
+  border: 1px solid var(--sug-line);
+  border-left: 5px solid var(--sug-muted);
+  border-radius: var(--sug-radius);
+}
+
+.sug-app .sug-status-good { border-left-color: var(--sug-good); }
+.sug-app .sug-status-warn { border-left-color: var(--sug-warn); }
+.sug-app .sug-status-bad { border-left-color: var(--sug-bad); }
+
+.sug-app .sug-status-icon {
+  font-size: 26px;
+  color: var(--sug-muted);
+}
+
+.sug-app .sug-status-good .sug-status-icon { color: var(--sug-good); }
+.sug-app .sug-status-warn .sug-status-icon { color: var(--sug-warn); }
+.sug-app .sug-status-bad .sug-status-icon { color: var(--sug-bad); }
+
+.sug-app .sug-status-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sug-app .sug-status-text strong {
+  font-size: 16px;
+  line-height: 1.3;
+}
+
+.sug-app .sug-status-text span {
+  color: var(--sug-muted);
+}
+
+.sug-app .sug-status-text span:empty {
+  display: none;
+}
+
+.sug-app .sug-status-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  min-width: 170px;
+}
+
+.sug-app .sug-status-actions button {
+  white-space: nowrap;
+}
+
+/* The search for the module behind a problem */
+.sug-app .sug-search {
+  background: var(--sug-accent-soft);
+  border: 1px solid var(--sug-accent);
+  border-radius: var(--sug-radius);
+  padding: 10px 14px 12px;
+  margin-bottom: 12px;
+}
+
+.sug-app .sug-search h2 {
+  margin: 0 0 4px;
+}
+
+.sug-app .sug-names {
+  margin: 4px 0;
+  padding-left: 18px;
+}
+
+/* Folded parts */
+.sug-app .sug-fold,
+.sug-app .sug-group {
+  margin-top: 10px;
+}
+
+.sug-app .sug-fold > summary,
+.sug-app .sug-group > summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 3px 0;
+}
+
+.sug-app .sug-group > summary .sug-muted {
+  font-weight: 400;
+  margin-left: 4px;
+}
+
+.sug-app .sug-group-blocked .sug-group-title,
+.sug-app .sug-group-breaks .sug-group-title {
+  color: var(--sug-bad);
+}
+
+.sug-app .sug-group-update .sug-group-title {
+  color: var(--sug-warn);
+}
+
+.sug-app .sug-result.compact .sug-reason {
+  display: none;
+}
+
+.sug-app .sug-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sug-app .sug-end {
+  margin-left: auto;
+}
+
+.sug-app .sug-when {
+  font-weight: 400;
+  font-size: 12px;
+}
+
+.sug-app .sug-steps {
+  list-style: none;
+  margin: 4px 0;
+  padding: 0;
+}
+
+.sug-app .sug-steps li {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  padding: 1px 0;
+}
+
+.sug-app .sug-step-good i { color: var(--sug-good); }
+.sug-app .sug-step-slow i { color: var(--sug-warn); }
+.sug-app .sug-step-bad i { color: var(--sug-bad); }
+
+.sug-app .sug-changes > li {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 3px 10px;
+}
+
+.sug-app .sug-empty {
+  color: var(--sug-muted);
+  font-style: italic;
+  padding: 6px 0;
+}
+
+.sug-app .sug-bad {
+  color: var(--sug-accent);
+}
+
+.sug-app .sug-line {
+  padding: 4px 0;
+}
+
+.sug-app .sug-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sug-app .sug-list > li {
+  background: var(--sug-card);
+  border: 1px solid var(--sug-line);
+  border-radius: calc(var(--sug-radius) - 4px);
+  padding: 6px 10px;
+}
+
+.sug-app .sug-list > li.sug-bad {
+  border-color: var(--sug-accent);
+  color: var(--sug-ink);
+}
+
+.sug-app .sug-source {
+  display: block;
+  color: var(--sug-muted);
+  font-size: 12px;
+}
+
+.sug-app .sug-count {
+  display: inline-block;
+  min-width: 1.6em;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--sug-soft);
+  text-align: center;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.sug-app .sug-message {
+  margin-top: 2px;
+  font-family: var(--font-monospace, monospace);
+  font-size: 12px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--sug-muted);
+}
+
+/* Check tab */
+.sug-app .sug-target {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sug-app .sug-target input {
+  width: 74px;
+  background: var(--sug-field);
+  color: var(--sug-ink);
+  border: 1px solid var(--sug-line);
+  border-radius: calc(var(--sug-radius) - 4px);
+  padding: 4px 8px;
+}
+
+.sug-app .sug-target input.invalid {
+  border-color: var(--sug-accent);
+}
+
+.sug-app button {
+  background: var(--sug-card);
+  color: var(--sug-ink);
+  border: 1px solid var(--sug-line);
+  border-radius: calc(var(--sug-radius) - 4px);
+  padding: 4px 12px;
+  cursor: pointer;
+  line-height: 1.5;
+}
+
+.sug-app button:hover:not(:disabled),
+.sug-app button:focus-visible {
+  border-color: var(--sug-accent);
+}
+
+.sug-app button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.sug-app button.sug-primary {
+  background: var(--sug-accent);
+  color: var(--sug-on-accent);
+  border-color: var(--sug-accent);
+  font-weight: 600;
+}
+
+.sug-app .sug-tab {
+  background: transparent;
+}
+
+.sug-app .sug-verdict {
+  font-size: 15px;
+  font-weight: 700;
+  padding: 8px 12px;
+  background: var(--sug-card);
+  border: 1px solid var(--sug-line);
+  border-left: 4px solid var(--sug-accent);
+  border-radius: calc(var(--sug-radius) - 4px);
+}
+
+.sug-app .sug-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.sug-app .sug-online {
+  background: var(--sug-soft);
+  border-radius: var(--sug-radius);
+  padding: 4px 14px 12px;
+  margin-top: 14px;
+}
+
+.sug-app .sug-report {
+  margin-top: 8px;
+}
+
+.sug-app .sug-results {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.sug-app .sug-result {
+  background: var(--sug-card);
+  border: 1px solid var(--sug-line);
+  border-radius: calc(var(--sug-radius) - 4px);
+  padding: 6px 10px;
+}
+
+.sug-app .sug-result-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sug-app .sug-kind {
+  margin-left: auto;
+  color: var(--sug-muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sug-app .sug-badge {
+  display: inline-block;
+  padding: 1px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  background: var(--sug-soft);
+  color: var(--sug-ink);
+}
+
+.sug-app .sug-badge-ready,
+.sug-app .sug-mark-good {
+  background: rgb(54 129 74 / 0.18);
+  color: #2c6b3f;
+}
+
+.sug-app .sug-badge-update {
+  background: rgb(46 100 170 / 0.18);
+  color: #2a5a9c;
+}
+
+.sug-app .sug-badge-likely {
+  background: rgb(188 138 28 / 0.2);
+  color: #8a6210;
+}
+
+.sug-app .sug-badge-unknown,
+.sug-app .sug-mark-open {
+  background: var(--sug-soft);
+  color: var(--sug-muted);
+}
+
+.sug-app .sug-badge-blocked,
+.sug-app .sug-mark-bad {
+  background: rgb(176 52 40 / 0.2);
+  color: #a3281c;
+}
+
+.sug-app[data-sug-theme="foundry"] .sug-badge-ready,
+.sug-app[data-sug-theme="foundry"] .sug-mark-good { color: #7fd197; }
+.sug-app[data-sug-theme="foundry"] .sug-badge-update { color: #8db8f0; }
+.sug-app[data-sug-theme="foundry"] .sug-badge-likely { color: #e6bd63; }
+.sug-app[data-sug-theme="foundry"] .sug-badge-blocked,
+.sug-app[data-sug-theme="foundry"] .sug-mark-bad { color: #f08a7e; }
+
+.sug-app .sug-reason {
+  margin-top: 2px;
+}
+
+.sug-app .sug-evidence {
+  margin-top: 4px;
+  color: var(--sug-muted);
+  font-size: 12px;
+}
+
+.sug-app .sug-evidence summary {
+  cursor: pointer;
+}
+
+.sug-app .sug-evidence ul {
+  margin: 4px 0 2px;
+  padding-left: 18px;
+}
+
+.sug-app .sug-checklist {
+  margin: 4px 0;
+  padding-left: 22px;
+}
+
+.sug-app .sug-checklist li {
+  margin: 3px 0;
+}
+
+/* Back tab */
+.sug-app .sug-url {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.sug-app .sug-url code {
+  background: var(--sug-field);
+  border: 1px solid var(--sug-line);
+  border-radius: 4px;
+  padding: 1px 6px;
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+
+.sug-app .sug-back-row {
+  padding: 4px 0;
+}
+
+.sug-app .sug-verify {
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+.sug-app .sug-verify-found { color: #2c6b3f; }
+.sug-app .sug-verify-noFile,
+.sug-app .sug-verify-notFound,
+.sug-app .sug-verify-error { color: var(--sug-accent); }
+
+.sug-app .sug-history li.current {
+  border-color: var(--sug-accent);
+}
+
+.sug-app .sug-history .sug-badge {
+  margin-left: 6px;
+}
+
+/* The button in the sidebar's settings tab */
+.sug-sidebar-button {
+  width: 100%;
+  margin: 6px 0;
+}

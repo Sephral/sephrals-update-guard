@@ -1,0 +1,431 @@
+{
+  "SUG": {
+    "LANGUAGE": {
+      "default": "Like Foundry",
+      "de": "Deutsch",
+      "en": "English"
+    },
+    "SETTINGS": {
+      "uiLanguage": {
+        "name": "Module language",
+        "hint": "Language of Update Guard on this device. \"Like Foundry\" follows Foundry's language."
+      },
+      "theme": {
+        "name": "Look",
+        "hint": "Signature shows the windows on warm paper, Foundry keeps them dark like the rest of Foundry.",
+        "signature": "Signature (paper)",
+        "foundry": "Foundry (dark)"
+      },
+      "windowMode": {
+        "name": "After an update",
+        "hint": "What happens at the start of the world when something changed since the last start. Only the active GM sees it.",
+        "window": "Open the window",
+        "notice": "Show a notice only",
+        "none": "Nothing"
+      },
+      "goodAfter": {
+        "name": "Minutes without a module error",
+        "hint": "A start counts as one that ran well when the world stayed open this long without an error from a module. That state is the one the way back leads to."
+      },
+      "guard": {
+        "name": "Update Guard",
+        "label": "Open Update Guard",
+        "hint": "What changed since the last start, the check before an update and the way back."
+      }
+    },
+    "gear": "Settings",
+    "gmOnly": "Update Guard is for the GM.",
+    "Window": {
+      "title": "Update Guard",
+      "open": "Update Guard"
+    },
+    "Keys": {
+      "openWindow": "Open Update Guard"
+    },
+    "Honest": "Update Guard runs only in a started world and installs nothing itself. If the world does not start after an update, the export helps. All compatibility data comes from the authors of the packages.",
+    "Tab": {
+      "changes": "Is everything working?",
+      "check": "Can I update?",
+      "back": "How do I get back?"
+    },
+    "noData": "no data",
+    "none": "none",
+    "compat": "minimum {minimum}, verified {verified}, maximum {maximum}",
+    "link": {
+      "changelog": "Changelog",
+      "page": "Page",
+      "readme": "Readme"
+    },
+    "Source": {
+      "label": "Based on:",
+      "manifest": "installed manifest",
+      "forge": "package list of The Forge",
+      "foundry": "Foundry's own status",
+      "requires": "relationships.requires in the manifest",
+      "systems": "relationships.systems in the manifest",
+      "compatibility": "compatibility in the manifest"
+    },
+    "Changes": {
+      "title": "What changed",
+      "noHistory": "No state is recorded yet. The state of every start is recorded by the active GM.",
+      "firstStart": "This is the first recorded start. Changes show from the next start on.",
+      "since": "since",
+      "none": "Nothing changed since the last state.",
+      "updated": "Updated",
+      "new": "New",
+      "gone": "Removed",
+      "switchedOn": "Switched on",
+      "switchedOff": "Switched off",
+      "off": "off",
+      "coreUp": "Foundry {from} → {to}",
+      "coreDown": "Foundry {from} → {to} (older)",
+      "systemUp": "{title} {from} → {to}",
+      "systemDown": "{title} {from} → {to} (older)",
+      "systemOther": "Game system changed from {from} to {to}",
+      "up": "{title} {from} → {to}",
+      "down": "{title} {from} → {to} (older)",
+      "added": "{title} {version} is installed and off",
+      "addedActive": "{title} {version} is new and on",
+      "removed": "{title} {version} is gone",
+      "removedIncompatible": "{title} {version} is gone. Its manifest declared {compat}, which does not fit Foundry {core}, so Foundry may have dropped it.",
+      "activated": "{title} {version} is on now",
+      "deactivated": "{title} {version} is off now",
+      "notice": "Update Guard: {count} changes since the last start. Open it from the settings tab of the sidebar."
+    },
+    "Problems": {
+      "title": "What no longer fits",
+      "notes": "Notes"
+    },
+    "Problem": {
+      "minimum": "needs Foundry {minimum} or newer, this is {core}.",
+      "maximum": "is declared up to Foundry {maximum}, this is {core}.",
+      "missingDependency": "needs the module {id}, which is not installed.",
+      "inactiveDependency": "needs {title}, which is switched off.",
+      "dependencyVersion": "needs {id} in the range {minimum} to {maximum}, installed is {version}.",
+      "missingSystem": "needs the game system {id}, this world runs {system}.",
+      "otherSystem": "is made for the systems {systems}, this world runs {system}.",
+      "systemRange": "is made for {system} from {minimum} to {maximum}, installed is {version}.",
+      "foundry": "has the status \"{text}\" in Foundry."
+    },
+    "AVAIL": {
+      "UNVERIFIED_BUILD": "not verified for this Foundry build",
+      "UNVERIFIED_GENERATION": "not verified for this Foundry generation",
+      "UNVERIFIED_SYSTEM": "not verified for the installed game system",
+      "MISSING_SYSTEM": "game system missing",
+      "MISSING_DEPENDENCY": "dependency missing",
+      "REQUIRES_CORE_DOWNGRADE": "made for an older Foundry",
+      "REQUIRES_CORE_UPGRADE_STABLE": "needs a newer, stable Foundry",
+      "REQUIRES_CORE_UPGRADE_UNSTABLE": "needs a newer Foundry that is not stable yet",
+      "REQUIRES_CORE_UPGRADE_UNKNOWN": "needs a newer Foundry",
+      "REQUIRES_DEPENDENCY_UPDATE": "a dependency needs an update"
+    },
+    "Errors": {
+      "title": "Errors since the start",
+      "since": "Counted since this page was loaded on",
+      "first": "First message:",
+      "other": "Errors from Foundry or code that cannot be assigned",
+      "world": "World scripts",
+      "clear": "Reset the count",
+      "kind": {
+        "error": "script errors",
+        "rejection": "unhandled promises",
+        "hook": "errors in hooks"
+      }
+    },
+    "Check": {
+      "target": "Foundry",
+      "invalidTarget": "That is not a version. Use 15 or 14.371.",
+      "basis": "What this is based on",
+      "blockedOffline": "Look for newer versions shows whether one exists.",
+      "deprecatedBreaks": "Calls Foundry functions that are removed in {until} ({count} calls). The target is {target}.",
+      "deprecatedCalls": "Calls deprecated Foundry functions ({count} calls, removal in {until}).",
+      "compatSilent": "Foundry's compatibility mode is set to silent, so deprecated calls are not reported and not counted.",
+      "noProbe": "The deprecation counter is not installed, deprecated calls are not counted.",
+      "compatFilter": "Foundry's compatibility patterns filter some messages, so some deprecated calls may not be counted."
+    },
+    "STATUS": {
+      "ready": "ready",
+      "update": "update needed",
+      "likely": "not confirmed",
+      "unknown": "no data",
+      "blocked": "blocked"
+    },
+    "REASON": {
+      "verified": "The author verified it for {target}.",
+      "minimumHigh": "Needs a newer Foundry than {target}.",
+      "maximumLow": "Declared only up to a Foundry older than {target}, and no newer version is known.",
+      "minimumFits": "The minimum version fits {target}, but {target} is not verified.",
+      "maximumFits": "The maximum fits {target}, but there is no minimum or verified version.",
+      "noData": "The manifest has no compatibility data.",
+      "latestVerified": "The newer version {version} is verified for {target}, the installed one is not.",
+      "latestNotBlocked": "The newer version {version} is not blocked for {target}, but not verified either."
+    },
+    "EVIDENCE": {
+      "installed": "{source}: installed {version}, {compat}",
+      "latest": "{source}: newest {version}, {compat}",
+      "noNewer": "{source}: no version newer than the installed one",
+      "notListed": "{source}: the package is not listed",
+      "failed": "{source}: the request failed ({error})"
+    },
+    "ERR": {
+      "blocked": "the browser could not reach it, because of missing CORS permission, no network or a blocked connection",
+      "offline": "the browser is offline",
+      "timeout": "no answer in time",
+      "http": "the server answered {detail}",
+      "invalid": "the answer was not what was expected",
+      "otherPackage": "the manifest belongs to another package",
+      "tooLarge": "the answer was too large",
+      "rateLimit": "the limit of requests is used up for now",
+      "noManifest": "no usable manifest address"
+    },
+    "Online": {
+      "sends": "Check online sends the IDs of the game system and the active modules ({count} IDs), one request each, to forge-vtt.com, the public package list of The Forge.",
+      "sendsMore": "For a package that list does not know, its manifest address is requested from the host named there. Nothing else leaves your browser: no world data, no names, no settings. Like every request from a web page, it carries the address of this Foundry server. Answers stay in memory for one hour and requests are spaced out. Nothing is sent before you click.",
+      "run": "Look for newer versions",
+      "cancel": "Stop",
+      "progress": "{done} of {total} requests done",
+      "result": "Answers received for the target",
+      "stale": "The target changed since this check. The ratings use the answers, the answers stay the same.",
+      "failures": "Packages that did not answer",
+      "forge": "Package list of The Forge: {ok} answered, {notListed} not listed, {failed} failed.",
+      "manifest": "Manifests: {ok} read, {failed} failed, {skipped} without address.",
+      "failed": "The online check stopped with an error, see the console.",
+      "what": "What is sent",
+      "hint": "Asks the public package list of The Forge for newer versions. Nothing leaves your browser before that."
+    },
+    "Deprecated": {
+      "title": "Deprecated calls",
+      "hint": "Modules that called Foundry functions marked as deprecated since this page was loaded. Foundry removes them in a later version, which makes this the clearest sign for the next update.",
+      "until": "removed in",
+      "other": "Deprecated calls from Foundry itself or code that cannot be assigned"
+    },
+    "Export": {
+      "hint": "One file with every version, the rating for the target, what does not fit, errors and deprecated calls.",
+      "json": "Save as JSON",
+      "text": "Save as text",
+      "saved": "Saved {file}.",
+      "title": "Update Guard export",
+      "modules": "Modules ([x] = on):",
+      "check": "Rating for Foundry {target}:",
+      "latest": "newest {version}",
+      "sources": "Package list of The Forge: {forgeOk} answered, {forgeNone} not listed, {forgeFailed} failed. Manifests: {manifestOk} read, {manifestFailed} failed.",
+      "problems": "What no longer fits:",
+      "deprecated": "Deprecated calls:",
+      "errors": "Errors:",
+      "history": "Recorded states:",
+      "good": "ran well",
+      "modulesShort": "modules"
+    },
+    "Checklist": {
+      "title": "Checklist before the update",
+      "export": "Save the export below as text or JSON. If the world does not start after the update, it is the record of what was installed.",
+      "snapshot": "In Foundry's setup, back up everything with \"{snapshot}\" before you update.",
+      "copy": "Copy the world folder, or try the update on a copy of the world first.",
+      "order": "Update in this order: Foundry, then the game system, then the modules marked update needed.",
+      "test": "Start the world as GM and let Update Guard do a test run."
+    },
+    "Back": {
+      "modules": "modules",
+      "core": "Foundry ran {good} then, now it is {current}.",
+      "coreNote": "Foundry itself cannot be changed from inside a world. A Foundry build comes from your licenses page on foundryvtt.com or from an installer you kept. A world that a newer Foundry has migrated does not open in an older one without a backup made before.",
+      "modulesTitle": "Changed since then",
+      "rowUp": "now {current}, then {good}",
+      "rowDown": "now {current}, then {good}",
+      "copy": "Copy",
+      "verify": "Check on GitHub",
+      "verifyHint": "Asks api.github.com whether the release of that version exists and has the manifest file.",
+      "guess": "The address is derived from the installed manifest address. It is a guess until you check it.",
+      "foundryPage": "Page on foundryvtt.com, if listed",
+      "noDerive": "No older manifest address can be derived from the installed one.",
+      "nothingToDo": "Every module has the version of the last good state.",
+      "stepsTitle": "Steps",
+      "copied": "Address copied.",
+      "copyFailed": "The address could not be copied.",
+      "verifyFound": "The release {tag} exists and has the manifest file.",
+      "verifyNoFile": "The release {tag} exists but has no manifest file with that name.",
+      "verifyNotFound": "No release for that version was found under the usual tag names.",
+      "verifyFailed": "Could not check: {error}",
+      "step": {
+        "setup": "Leave the world with \"{setup}\". Foundry installs and restores packages only on the setup screen.",
+        "snapshot": "If you made a snapshot or backup before the update, restore it there. \"{snapshot}\" is the button that makes one.",
+        "install": "Otherwise open {modules}, then {install}, paste the {manifest} of the older version and install it. Check the version in the module list afterwards.",
+        "world": "Start the world and let Update Guard do a test run."
+      },
+      "older": "Everything last worked on {at}.",
+      "olderSub": "Foundry {core}, {system}. Changed since then: {count}.",
+      "olderTab": "Good state of {day}",
+      "olderSame": "Foundry {core}, {system}. All modules still have the same version.",
+      "current": "The current state is your good state.",
+      "currentSub": "If an update breaks something, this is where you see how to get back.",
+      "currentTab": "Current state is good",
+      "none": "There is no good state yet.",
+      "noneSub": "A test run without errors creates one.",
+      "noneTab": "No good state yet"
+    },
+    "History": {
+      "title": "Recorded states",
+      "hint": "The last 12 different states. A state is saved only when something changed, otherwise only its date is updated.",
+      "now": "now",
+      "good": "ran well",
+      "errors": "{count} errors",
+      "open": "not rated yet"
+    },
+    "SELFTEST": {
+      "Title": "Self test",
+      "Run": "Run self test",
+      "Hint": "Checks after an update that everything the module relies on is there.",
+      "Passed": "Self test passed: {checks} checks.",
+      "Problems": "Self test: {problems} problems in {checks} checks.",
+      "Version": "Foundry {current}, verified with {tested}.",
+      "NewVersions": "Foundry is newer than the verified version ({versions}). Run the self test if something looks wrong.",
+      "Dialog": "Foundry's dialogs are missing.",
+      "Texts": "Missing texts: {keys}",
+      "IsNewer": "foundry.utils.isNewerVersion is missing.",
+      "VersionRules": "The module's version comparison differs from Foundry's.",
+      "Availability": "Foundry's package availability codes are missing or have other names.",
+      "Packages": "The installed packages could not be read as expected.",
+      "ActiveGM": "Foundry does not tell who the active GM is.",
+      "History": "The stored history could not be read.",
+      "Watch": "The early watch for errors is not running.",
+      "Probe": "The counter for deprecated calls is not in Foundry's compatibility patterns.",
+      "Save": "Foundry cannot save a file from here.",
+      "CoreTexts": "Foundry texts used in the steps are missing: {keys}"
+    },
+    "DEBUG": {
+      "Title": "Debug file",
+      "Save": "Save debug file",
+      "Hint": "One file about all of Sephral's modules in this world, for bug reports. It contains chat text and whispers.",
+      "Entry": "Update Guard",
+      "Saved": "Debug file saved: {file}. It contains chat text and whispers, check it before you share it."
+    },
+    "Kind": {
+      "system": "Game system",
+      "module": "Module"
+    },
+    "Run": {
+      "trouble": "{count} modules are causing trouble.",
+      "troubleSub": "Below you see which ones and where. Switch them off one by one or let the search find the culprit.",
+      "troubleTab": "{count} modules causing trouble",
+      "troubleOne": "One module is causing trouble.",
+      "troubleOneSub": "Below you see which one and where. Switch it off or let the search find the culprit.",
+      "troubleOneTab": "One module causing trouble",
+      "tested": "Everything works.",
+      "testedSub": "Test run of {at}: {checks} checks without errors.",
+      "testedTab": "Yes, test run without errors",
+      "ran": "Everything works.",
+      "ranSub": "This state has been running without errors since {at}.",
+      "ranTab": "Yes, no errors so far",
+      "changed": "Something changed since {day}.",
+      "changedSub": "A test run shows in half a minute whether everything still works.",
+      "changedTab": "Not checked yet",
+      "first": "Update Guard is watching now.",
+      "firstSub": "Today's state is recorded. After the next update you see here what is different.",
+      "firstTab": "First start",
+      "untested": "Not checked yet.",
+      "untestedSub": "A test run shows in half a minute whether everything works.",
+      "untestedTab": "Not checked yet"
+    },
+    "Update": {
+      "blocked": "{count} modules do not run on Foundry {target} yet.",
+      "blockedSub": "{names}. The authors of the other {open} have not confirmed it yet.",
+      "blockedTab": "Not yet: {count} modules block it",
+      "blockedOne": "One module does not run on Foundry {target} yet.",
+      "blockedOneSub": "{names}. The authors of the other {open} have not confirmed it yet.",
+      "blockedOneTab": "Not yet: one module blocks it",
+      "breaks": "{count} modules could break in Foundry {target}.",
+      "breaksSub": "They call functions that are removed there.",
+      "breaksTab": "Careful: {count} modules could break",
+      "breaksOne": "One module could break in Foundry {target}.",
+      "breaksOneSub": "It calls functions that are removed there.",
+      "breaksOneTab": "Careful: one module could break",
+      "update": "{count} modules need an update before Foundry {target}.",
+      "updateSub": "Install their newer versions first.",
+      "updateTab": "First update {count} modules",
+      "updateOne": "One module needs an update before Foundry {target}.",
+      "updateOneSub": "Install its newer version first.",
+      "updateOneTab": "First update one module",
+      "open": "Nothing speaks against Foundry {target}.",
+      "openSub": "The authors just have not confirmed it yet ({open}). That is normal for a new version.",
+      "openTab": "Yes, nothing against it",
+      "ready": "Everything is ready for Foundry {target}.",
+      "readySub": "All authors have confirmed {target}.",
+      "readyTab": "Yes, all ready"
+    },
+    "Group": {
+      "blocked": "Will not run there",
+      "blockedHint": "The authors name a maximum below {target}.",
+      "update": "Needs an update first",
+      "updateHint": "A newer version fits {target}.",
+      "breaks": "Could break",
+      "breaksHint": "Calls functions that are removed in {target}.",
+      "waiting": "Not confirmed yet",
+      "waitingHint": "Normal for a new version, the authors catch up.",
+      "ready": "Ready",
+      "readyHint": "The authors have confirmed {target}."
+    },
+    "Trial": {
+      "title": "Test run",
+      "run": "Start test run",
+      "hint": "Opens sheets and windows for a moment and closes them again. Your world is not changed.",
+      "progress": "Check {done} of {total}: {label}",
+      "summaryGood": "{checks} checks, no module threw an error.",
+      "summaryBad": "{checks} checks, {count} modules threw errors.",
+      "summaryBadOne": "{checks} checks, one module threw errors.",
+      "deprecated": "{count} outdated calls came up on the way. They are listed under Can I update?",
+      "steps": "All {count} checks",
+      "timedOut": "too slow",
+      "failed": "The test run stopped, the console has the details.",
+      "step": {
+        "actor": "Character sheet",
+        "item": "Item",
+        "journal": "Journal",
+        "table": "Roll table",
+        "scene": "Scene settings",
+        "token": "Token settings",
+        "hud": "Token HUD",
+        "chat": "Dice card in chat",
+        "sidebar": "Sidebar",
+        "tools": "Scene tools",
+        "settings": "Settings",
+        "modules": "Module manager",
+        "compendium": "Compendium"
+      }
+    },
+    "Search": {
+      "start": "Something broken?",
+      "hint": "Finds the module behind a problem: switch off, look, narrow it down. In the end everything is as it was.",
+      "title": "Find the module",
+      "intro": "Update Guard switches modules off and reloads the world. Each time you look whether the problem is still there. After a few rounds the module is known and everything is as it was.",
+      "introChanged": "First under suspicion is what changed since {since}. That is {count}.",
+      "introAll": "No module changed since the last good state, so all {count} active modules are under suspicion.",
+      "others": "Others are logged in as well ({count}). They notice nothing until they reload.",
+      "begin": "Start the search",
+      "not": "Cancel",
+      "nothing": "There are no modules to search.",
+      "round": "Module search, round {round}",
+      "testing": "{off} of {total} suspects are off right now. Try what did not work. Is the problem still there?",
+      "left": "At most {count} more rounds.",
+      "leftOne": "This is the last round.",
+      "names": "Off right now",
+      "gone": "The problem is gone",
+      "there": "The problem is still there",
+      "cancel": "Cancel and restore everything",
+      "foundTitle": "It is {name}.",
+      "foundText": "With this module the problem was there, without it the problem was gone. All modules are back on until you decide.",
+      "keepOff": "Switch off {name}",
+      "restoreAll": "End the search",
+      "noneChangedTitle": "It is not one of the changed modules.",
+      "noneChangedText": "The problem stayed although all of them were off. All modules are back on.",
+      "widen": "Search all other modules",
+      "noneAllTitle": "It is not a module.",
+      "noneAllText": "The problem stayed although the modules were off. So it is in Foundry, the game system or the world itself."
+    },
+    "Off": {
+      "button": "Switch off",
+      "title": "Switch off a module",
+      "yes": "Switch off",
+      "text": "{name} is switched off in this world and the world reloads. You can switch it on again in Foundry's module manager at any time.",
+      "also": "These need it and go off with it: {names}."
+    }
+  }
+}

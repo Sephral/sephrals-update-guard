@@ -1,0 +1,322 @@
+<div class="sug-shell">
+  <nav class="sug-tabs" role="tablist">
+    {{#each tabs}}
+    <button type="button" role="tab" class="sug-tab{{#if active}} active{{/if}}" data-action="switchTab" data-tab="{{id}}"
+      aria-selected="{{#if active}}true{{else}}false{{/if}}">
+      <span class="sug-tab-label"><span class="sug-dot sug-dot-{{level}}"></span>{{label}}</span>
+      <span class="sug-tab-answer">{{answer}}</span>
+    </button>
+    {{/each}}
+  </nav>
+
+  <div class="sug-body">
+    {{#if search}}
+    <section class="sug-search" data-section="search" data-phase="{{search.phase}}">
+      <h2><i class="fa-solid fa-magnifying-glass" inert></i> {{search.title}}</h2>
+      <p>{{search.text}}</p>
+      {{#if search.left}}<p class="sug-muted">{{search.left}}</p>{{/if}}
+      {{#if search.names.length}}
+      <details class="sug-fold"><summary>{{search.namesTitle}}</summary>
+        <ul class="sug-names">{{#each search.names}}<li>{{this}}</li>{{/each}}</ul>
+      </details>
+      {{/if}}
+      <p class="sug-buttons">
+        {{#if search.testing}}
+        <button type="button" class="sug-primary" data-action="searchAnswer" data-answer="gone"><i class="fa-solid fa-check" inert></i> {{localize "SUG.Search.gone"}}</button>
+        <button type="button" data-action="searchAnswer" data-answer="there"><i class="fa-solid fa-xmark" inert></i> {{localize "SUG.Search.there"}}</button>
+        <button type="button" data-action="searchStop"><i class="fa-solid fa-rotate-left" inert></i> {{localize "SUG.Search.cancel"}}</button>
+        {{/if}}
+        {{#if search.found}}
+        <button type="button" class="sug-primary" data-action="searchStop" data-keep="{{search.culprit}}"><i class="fa-solid fa-power-off" inert></i> {{search.keepOff}}</button>
+        <button type="button" data-action="searchStop"><i class="fa-solid fa-rotate-left" inert></i> {{localize "SUG.Search.restoreAll"}}</button>
+        {{/if}}
+        {{#if search.none}}
+        {{#if search.canWiden}}<button type="button" class="sug-primary" data-action="searchWiden"><i class="fa-solid fa-magnifying-glass-plus" inert></i> {{localize "SUG.Search.widen"}}</button>{{/if}}
+        <button type="button" data-action="searchStop"><i class="fa-solid fa-rotate-left" inert></i> {{localize "SUG.Search.restoreAll"}}</button>
+        {{/if}}
+      </p>
+    </section>
+    {{/if}}
+
+    {{#if showRun}}
+    <section class="sug-status sug-status-{{status.level}}" data-section="status" data-key="{{status.key}}">
+      <i class="sug-status-icon fa-solid {{status.icon}}" inert></i>
+      <div class="sug-status-text">
+        <strong data-status-line>{{status.headline}}</strong>
+        <span>{{status.sub}}</span>
+      </div>
+      <div class="sug-status-actions">
+        {{#if trial.running}}
+        <span class="sug-muted" data-progress>{{trial.progress}}</span>
+        {{else}}
+        <button type="button" class="sug-primary" data-action="runTrial"  data-tooltip="{{localize "SUG.Trial.hint"}}"><i class="fa-solid fa-play" inert></i> {{localize "SUG.Trial.run"}}</button>
+        <button type="button" data-action="startSearch" {{#if search}}disabled{{/if}}
+          data-tooltip="{{localize "SUG.Search.hint"}}"><i class="fa-solid fa-magnifying-glass" inert></i> {{localize "SUG.Search.start"}}</button>
+        {{/if}}
+      </div>
+    </section>
+
+    {{#if trial.shown}}
+    <section class="sug-section" data-section="trial">
+      <h2>{{localize "SUG.Trial.title"}} <span class="sug-muted sug-when">{{trial.at}}</span></h2>
+      <p data-trial-summary>{{trial.summary}}</p>
+      {{#if trial.owners.length}}
+      <ul class="sug-list sug-trouble">
+        {{#each trial.owners}}
+        <li data-module="{{id}}" class="sug-bad">
+          <div class="sug-row"><strong>{{title}}</strong> <span class="sug-count">{{count}}</span>
+            <span class="sug-muted">{{where}}</span>
+            {{#if canOff}}<button type="button" class="sug-end" data-action="switchOff" data-id="{{id}}">{{localize "SUG.Off.button"}}</button>{{/if}}</div>
+          <div class="sug-message">{{message}}</div>
+        </li>
+        {{/each}}
+      </ul>
+      {{/if}}
+      {{#if trial.deprecated}}<p class="sug-muted">{{trial.deprecated}}</p>{{/if}}
+      {{#if trial.steps.length}}
+      <details class="sug-fold"><summary>{{trial.stepsTitle}}</summary>
+        <ul class="sug-steps">
+          {{#each trial.steps}}
+          <li class="sug-step-{{state}}" data-step="{{id}}"><i class="fa-solid {{icon}}" inert></i> <span>{{label}}</span>
+            {{#if name}}<span class="sug-muted">{{name}}</span>{{/if}}<span class="sug-muted sug-end">{{time}}</span></li>
+          {{/each}}
+        </ul>
+      </details>
+      {{/if}}
+    </section>
+    {{/if}}
+
+    {{#if hasProblems}}
+    <section class="sug-section" data-section="problems">
+      <h2>{{localize "SUG.Problems.title"}}</h2>
+      <ul class="sug-list sug-trouble">
+        {{#each problems}}
+        <li data-module="{{id}}" class="sug-bad"><strong>{{title}}</strong> {{text}}
+          <span class="sug-source">{{localize "SUG.Source.label"}} {{source}}</span>
+          {{#each links}}<a href="{{href}}" target="_blank" rel="noopener noreferrer">{{label}}</a>{{/each}}</li>
+        {{/each}}
+      </ul>
+    </section>
+    {{/if}}
+
+    {{#if errors.length}}
+    <section class="sug-section" data-section="errors">
+      <h2>{{localize "SUG.Errors.title"}}</h2>
+      <p class="sug-muted">{{localize "SUG.Errors.since"}} {{errorsSince}}.</p>
+      <ul class="sug-list sug-trouble">
+        {{#each errors}}
+        <li data-module="{{id}}">
+          <div class="sug-row"><strong>{{title}}</strong> <span class="sug-count">{{count}}</span>
+            <span class="sug-muted">{{kinds}}</span>
+            {{#if canOff}}<button type="button" class="sug-end" data-action="switchOff" data-id="{{id}}">{{localize "SUG.Off.button"}}</button>{{/if}}</div>
+          <div class="sug-message"><span class="sug-muted">{{localize "SUG.Errors.first"}}</span> {{message}}</div></li>
+        {{/each}}
+      </ul>
+      <p><button type="button" data-action="clearErrors">{{localize "SUG.Errors.clear"}}</button></p>
+    </section>
+    {{/if}}
+    {{#if otherErrors}}<p class="sug-muted" data-other-errors>{{localize "SUG.Errors.other"}}: {{otherErrors}}</p>{{/if}}
+    {{#if compatNote}}<p class="sug-muted">{{compatNote}}</p>{{/if}}
+
+    {{#if hasPrevious}}
+    <section class="sug-section" data-section="changed">
+      <h2>{{localize "SUG.Changes.title"}} {{#if any}}<span class="sug-count">{{count}}</span>{{/if}}
+        <span class="sug-muted sug-when">{{localize "SUG.Changes.since"}} {{since}}</span></h2>
+      {{#unless any}}
+      <p class="sug-empty" data-empty="changes">{{localize "SUG.Changes.none"}}</p>
+      {{/unless}}
+      <ul class="sug-list sug-changes">
+        {{#if core}}<li><span><i class="fa-solid fa-cube" inert></i> {{core}}</span></li>{{/if}}
+        {{#if system}}
+        <li><span><i class="fa-solid fa-dice-d20" inert></i> {{system.text}}</span>
+          {{#each system.links}}<a href="{{href}}" target="_blank" rel="noopener noreferrer">{{label}}</a>{{/each}}</li>
+        {{/if}}
+        {{#each updated}}
+        <li data-module="{{id}}"><span>{{text}}{{#if inactive}} <em class="sug-muted">({{localize "SUG.Changes.off"}})</em>{{/if}}</span>
+          {{#each links}}<a href="{{href}}" target="_blank" rel="noopener noreferrer">{{label}}</a>{{/each}}</li>
+        {{/each}}
+        {{#each added}}
+        <li data-module="{{id}}"><span>{{text}}</span>
+          {{#each links}}<a href="{{href}}" target="_blank" rel="noopener noreferrer">{{label}}</a>{{/each}}</li>
+        {{/each}}
+        {{#each removed}}<li data-module="{{id}}"><span>{{text}}</span></li>{{/each}}
+        {{#each activated}}<li data-module="{{id}}"><span>{{text}}</span></li>{{/each}}
+        {{#each deactivated}}
+        <li data-module="{{id}}"><span>{{text}}</span>
+          {{#each reasons}}<div class="sug-bad">{{text}} <span class="sug-source">{{localize "SUG.Source.label"}} {{source}}</span></div>{{/each}}</li>
+        {{/each}}
+      </ul>
+    </section>
+    {{/if}}
+
+    {{#if hasNotes}}
+    <details class="sug-fold" data-section="notes"><summary>{{localize "SUG.Problems.notes"}} <span class="sug-count">{{notes.length}}</span></summary>
+      <ul class="sug-list">
+        {{#each notes}}<li data-module="{{id}}"><strong>{{title}}</strong> {{text}}
+          <span class="sug-source">{{localize "SUG.Source.label"}} {{source}}</span></li>{{/each}}
+      </ul>
+    </details>
+    {{/if}}
+    {{/if}}
+
+    {{#if isCheck}}
+    <section class="sug-status sug-status-{{status.level}}" data-section="target" data-key="{{status.key}}">
+      <i class="sug-status-icon fa-solid {{status.icon}}" inert></i>
+      <div class="sug-status-text">
+        <strong data-verdict>{{status.headline}}</strong>
+        <span>{{status.sub}}</span>
+      </div>
+      <div class="sug-status-actions">
+        <label class="sug-target">{{localize "SUG.Check.target"}}
+          <input id="sug-target" type="text" name="target" value="{{targetText}}" autocomplete="off" inputmode="decimal"
+            class="{{#unless targetValid}}invalid{{/unless}}" placeholder="{{target}}"></label>
+        {{#if running}}
+        <button type="button" data-action="cancelOnline"><i class="fa-solid fa-ban" inert></i> {{localize "SUG.Online.cancel"}}</button>
+        {{else}}
+        <button type="button" class="sug-primary" data-action="online"
+          data-tooltip="{{localize "SUG.Online.hint"}}"><i class="fa-solid fa-cloud-arrow-down" inert></i> {{localize "SUG.Online.run"}}</button>
+        {{/if}}
+      </div>
+    </section>
+    {{#unless targetValid}}<p class="sug-bad">{{localize "SUG.Check.invalidTarget"}}</p>{{/unless}}
+    {{#if running}}<p class="sug-muted" data-progress>{{progress}}</p>{{/if}}
+
+    {{#if report}}
+    <div class="sug-report" data-section="report" data-report>
+      <p><strong>{{localize "SUG.Online.result"}}</strong> {{report.target}}. {{report.forge}} {{report.manifest}}</p>
+      {{#if report.stale}}<p class="sug-muted">{{localize "SUG.Online.stale"}}</p>{{/if}}
+      {{#if report.failures.length}}
+      <details class="sug-fold"><summary>{{localize "SUG.Online.failures"}} <span class="sug-count">{{report.failures.length}}</span></summary>
+        <ul class="sug-list">
+          {{#each report.failures}}<li><strong>{{title}}</strong> {{source}}: {{error}}</li>{{/each}}
+        </ul>
+        {{#if report.moreFailures}}<p class="sug-muted">+{{report.moreFailures}}</p>{{/if}}
+      </details>
+      {{/if}}
+    </div>
+    {{/if}}
+
+    <section class="sug-section" data-section="results">
+      {{#each groups}}
+      <details class="sug-group sug-group-{{key}}" data-group="{{key}}" {{#if open}}open{{/if}}>
+        <summary><span class="sug-group-title">{{title}}</span> <span class="sug-count">{{rows.length}}</span>
+          <span class="sug-muted">{{hint}}</span></summary>
+        <ul class="sug-results">
+          {{#each rows}}
+          <li class="sug-result{{#if ../compact}} compact{{/if}}" data-module="{{id}}" data-status="{{status}}">
+            <div class="sug-result-head">
+              <strong>{{title}}</strong>
+              <span class="sug-muted">{{version}}{{#if latest}} → {{latest}}{{/if}}</span>
+              {{#if isSystem}}<span class="sug-kind">{{kindLabel}}</span>{{/if}}
+            </div>
+            <div class="sug-reason">{{reason}}{{#if hint}} <span class="sug-muted">{{hint}}</span>{{/if}}</div>
+            {{#if deprecated}}<div class="{{#if breaks}}sug-bad{{else}}sug-muted{{/if}}">{{deprecated}}</div>{{/if}}
+            <details class="sug-evidence"><summary>{{localize "SUG.Check.basis"}}</summary>
+              <ul>{{#each detail}}<li>{{this}}</li>{{/each}}</ul>
+              {{#each links}}<a href="{{href}}" target="_blank" rel="noopener noreferrer">{{label}}</a>{{/each}}
+            </details>
+          </li>
+          {{/each}}
+        </ul>
+      </details>
+      {{/each}}
+    </section>
+
+    {{#if deprecated.length}}
+    <details class="sug-fold" data-section="deprecated"><summary>{{localize "SUG.Deprecated.title"}} <span class="sug-count">{{deprecated.length}}</span></summary>
+      <p class="sug-muted">{{localize "SUG.Deprecated.hint"}}</p>
+      <ul class="sug-list">
+        {{#each deprecated}}
+        <li data-module="{{id}}" class="{{#if breaks}}sug-bad{{/if}}"><strong>{{title}}</strong> <span class="sug-count">{{count}}</span>
+          {{#if until}}<span class="sug-muted">{{localize "SUG.Deprecated.until"}} {{until}}</span>{{/if}}
+          <div class="sug-message">{{message}}</div></li>
+        {{/each}}
+      </ul>
+    </details>
+    {{/if}}
+    {{#if deprecatedOther}}<p class="sug-muted" data-other-deprecated>{{localize "SUG.Deprecated.other"}}: {{deprecatedOther}}</p>{{/if}}
+    {{#if compatNote}}<p class="sug-muted">{{compatNote}}</p>{{/if}}
+
+    <details class="sug-fold" data-section="export"><summary>{{localize "SUG.Checklist.title"}}</summary>
+      <ol class="sug-checklist">{{#each checklist}}<li>{{this}}</li>{{/each}}</ol>
+      <p class="sug-buttons">
+        <button type="button" data-action="exportText"><i class="fa-solid fa-file-lines" inert></i> {{localize "SUG.Export.text"}}</button>
+        <button type="button" data-action="exportJson"><i class="fa-solid fa-file-code" inert></i> {{localize "SUG.Export.json"}}</button>
+      </p>
+      <p class="sug-muted">{{localize "SUG.Export.hint"}}</p>
+    </details>
+
+    <details class="sug-fold" data-section="online"><summary>{{localize "SUG.Online.what"}}</summary>
+      <p>{{sendText}}</p>
+      <p class="sug-muted">{{localize "SUG.Online.sendsMore"}}</p>
+    </details>
+    {{/if}}
+
+    {{#if isBack}}
+    <section class="sug-status sug-status-{{status.level}}" data-section="way-back" data-key="{{status.key}}">
+      <i class="sug-status-icon fa-solid {{status.icon}}" inert></i>
+      <div class="sug-status-text">
+        <strong {{#if good}}data-last-good{{/if}}>{{status.headline}}</strong>
+        <span>{{status.sub}}</span>
+      </div>
+    </section>
+
+    {{#if core}}<p class="sug-line"><i class="fa-solid fa-cube" inert></i> {{core}} <span class="sug-muted">{{localize "SUG.Back.coreNote"}}</span></p>{{/if}}
+
+    {{#if hasBackRows}}
+    <section class="sug-section" data-section="back-rows">
+      <h2>{{localize "SUG.Back.modulesTitle"}}</h2>
+      <ul class="sug-list sug-back">
+        {{#if systemRow}}
+        <li class="sug-back-row" data-system>
+          <div class="sug-row"><strong>{{systemRow.title}}</strong> <span class="sug-muted">{{systemRow.text}}</span></div>
+          {{#if systemRow.manifest}}
+          <div class="sug-url"><code>{{systemRow.manifest}}</code>
+            <button type="button" data-action="copyUrl" data-url="{{systemRow.manifest}}"><i class="fa-solid fa-copy" inert></i> {{localize "SUG.Back.copy"}}</button></div>
+          {{else}}
+          <div class="sug-muted">{{localize "SUG.Back.noDerive"}}
+            {{#if systemRow.page}}<a href="{{systemRow.page}}" target="_blank" rel="noopener noreferrer">{{localize "SUG.link.page"}}</a>{{/if}}</div>
+          {{/if}}
+        </li>
+        {{/if}}
+        {{#each rows}}
+        <li class="sug-back-row" data-module="{{id}}">
+          <div class="sug-row"><strong>{{title}}</strong> <span class="sug-muted">{{text}}</span></div>
+          {{#if manifest}}
+          <div class="sug-url"><code>{{manifest}}</code>
+            <button type="button" data-action="copyUrl" data-url="{{manifest}}"><i class="fa-solid fa-copy" inert></i> {{localize "SUG.Back.copy"}}</button>
+            {{#if canVerify}}<button type="button" data-action="verifyOlder" data-id="{{id}}" data-tooltip="{{localize "SUG.Back.verifyHint"}}"><i class="fa-brands fa-github" inert></i> {{localize "SUG.Back.verify"}}</button>{{/if}}
+          </div>
+          <div class="sug-muted">{{localize "SUG.Back.guess"}}</div>
+          {{#if verifyText}}<div class="sug-verify sug-verify-{{verifyState}}" data-verify>{{verifyText}}</div>{{/if}}
+          {{else}}
+          <div class="sug-muted">{{pageNote}}
+            {{#if page}}<a href="{{page}}" target="_blank" rel="noopener noreferrer">{{localize "SUG.link.page"}}</a>{{/if}}
+            <a href="{{foundryPage}}" target="_blank" rel="noopener noreferrer">{{localize "SUG.Back.foundryPage"}}</a></div>
+          {{/if}}
+        </li>
+        {{/each}}
+      </ul>
+    </section>
+    {{else}}
+    {{#if good}}<p class="sug-empty" data-empty="back">{{localize "SUG.Back.nothingToDo"}}</p>{{/if}}
+    {{/if}}
+
+    <details class="sug-fold" data-section="steps" {{#if hasBackRows}}open{{/if}}><summary>{{localize "SUG.Back.stepsTitle"}}</summary>
+      <ol class="sug-checklist">{{#each steps}}<li>{{this}}</li>{{/each}}</ol>
+    </details>
+
+    <details class="sug-fold" data-section="history"><summary>{{localize "SUG.History.title"}} <span class="sug-count">{{history.length}}</span></summary>
+      <p class="sug-muted">{{localize "SUG.History.hint"}}</p>
+      <ul class="sug-list sug-history">
+        {{#each history}}
+        <li class="{{#if current}}current{{/if}}"><span>{{at}}</span> Foundry {{core}}, {{system}}, {{modules}} {{localize "SUG.Back.modules"}}
+          <span class="sug-badge sug-mark-{{markClass}}">{{mark}}</span>{{#if current}} <em class="sug-muted">{{localize "SUG.History.now"}}</em>{{/if}}</li>
+        {{/each}}
+      </ul>
+    </details>
+    {{/if}}
+
+    <p class="sug-honest">{{localize "SUG.Honest"}}</p>
+  </div>
+</div>
