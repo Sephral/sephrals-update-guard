@@ -160,6 +160,6 @@ With the GM’s consent only the active GM’s browser counts, and it sends at m
 * on how many of the last 30 days the module was used
 * how often the GM opens the window, how often it opens by itself after a change, runs a test run, starts a search, finds a module, switches a module off, changes the target, looks for newer versions, saves an export and copies an older manifest address
 * the settings *Look*, *After an update* and *Minutes without a module error* (only the chosen option or number)
-* where errors occur in the module code: file, line and error type, never the error message
+* where errors occur in the module code: file, line, error type and whether the error arose in the module itself, in Foundry, in the game system or in another module, never the error message or the name of another module
 
 No names, notes, pictures or other content of the world are sent.
