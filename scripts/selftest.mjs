@@ -3,6 +3,8 @@
  */
 
 import {MODULE_ID, TESTED_VERSIONS, esc, t} from "./config.mjs";
+import {declaredConflicts, keyConflicts, mergeConflicts, wrapperConflicts} from "./conflicts-data.mjs";
+import {findConflicts, wrapperLog} from "./conflicts.mjs";
 import {ErrorGate, PlayerErrorStore, buildReport, compareVersions, readReport, sanitizeMessage} from "./player-data.mjs";
 import {repositoryOf} from "./report-data.mjs";
 import {parseHistory} from "./snapshots.mjs";
@@ -27,6 +29,31 @@ function playersLogicWorks() {
       {core: "1", system: {id: "s", version: "1"}, modules: [["a", "2"]]});
     return !/example\.test|someone/.test(clean) && (first.length === 1) && (again.length === 0) && !!stored?.isNew
       && (diff.different.length === 1) && PlayerErrorStore.parse(store.serialize()).entries.size === 1;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Does the conflict finder work: the logic on made up data, the real registries readable, the hooks of the wrapper
+ * library heard?
+ * @returns {boolean}
+ */
+function conflictsWork() {
+  try {
+    const keys = keyConflicts([
+      {id: "module:a.x", owner: "module:a", name: "x", bindings: [{key: "KeyK", modifiers: ["Shift", "Control"]}], down: true},
+      {id: "module:b.y", owner: "module:b", name: "y", bindings: [{key: "KeyK", modifiers: ["Control", "Shift"]}], down: true},
+      {id: "module:c.z", owner: "module:c", name: "z", bindings: [{key: "ShiftLeft"}], down: true},
+      {id: "module:d.z", owner: "module:d", name: "z", bindings: [{key: "ShiftLeft"}], down: true}]);
+    const wrappers = wrapperConflicts({registrations: [{owner: "module:a", target: "T.prototype.m", type: "OVERRIDE"},
+      {owner: "module:b", target: "T.prototype.m", type: "OVERRIDE"}]});
+    const declared = declaredConflicts({system: {id: "s", version: "1"}, modules: [{id: "a", version: "1", active: true,
+      conflicts: [{id: "b", type: "module", compat: {}}]}, {id: "b", version: "1", active: true}]});
+    const merged = mergeConflicts(keys, wrappers, declared);
+    const live = findConflicts();
+    return (keys.length === 1) && (wrappers.length === 1) && (declared.length === 1) && (merged.length === 3)
+      && Array.isArray(live.findings) && !!wrapperLog.listening;
   } catch {
     return false;
   }
@@ -73,6 +100,7 @@ async function checkAll() {
   check(typeof foundry.utils?.saveDataToFile === "function", "SUG.SELFTEST.Save");
   check(typeof game.socket?.emit === "function" && !!game.modules.get(MODULE_ID)?.socket, "SUG.SELFTEST.Socket");
   check(playersLogicWorks(), "SUG.SELFTEST.Players");
+  check(conflictsWork(), "SUG.SELFTEST.Conflicts");
   check(typeof game.settings.settings.has === "function" && ["collectPlayerErrors", "playerNotice", "playerErrors"]
     .every(key => game.settings.settings.has(`${MODULE_ID}.${key}`)), "SUG.SELFTEST.PlayerSettings");
   check(!!repositoryOf({url: game.modules.get(MODULE_ID)?.url}), "SUG.SELFTEST.Repository");

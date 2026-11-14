@@ -1,6 +1,7 @@
 import {MODULE_ID, TESTED_VERSIONS, setting, t} from "./config.mjs";
 import {registerDebug} from "./debug.mjs";
 import {saveDebugFile} from "./debug-file.mjs";
+import {findConflicts, startConflictWatch} from "./conflicts.mjs";
 import {errorFor, exportData, lastReady, openGuard, refreshGuard, runCheck, startReady, startTrial} from "./guard-app.mjs";
 import {registerHubModule} from "./hub.mjs";
 import {applyModuleLanguage} from "./language.mjs";
@@ -18,6 +19,7 @@ import {installProbe, log, startWatch} from "./watch.mjs";
 // The module loads as a library: this runs before the system and the other modules, so the watch is listening when
 // they start
 startWatch();
+startConflictWatch();
 
 /** The timer of the quiet time after the start. */
 let goodTimer = null;
@@ -32,12 +34,14 @@ Hooks.once("init", () => {
   // Counted only on the active GM's client, like every Sephral module
   registerUsage(MODULE_ID, {
     features: ["windowOpened", "mapShown", "checkRun", "onlineCheck", "exportMade", "rollbackShown", "trialRun", "searchStarted",
-      "searchFound", "moduleOff", "readyRun", "playerErrorSeen", "reportOpened", "issueLookup", "loadoutSaved"],
+      "searchFound", "moduleOff", "readyRun", "playerErrorSeen", "reportOpened", "issueLookup", "loadoutSaved", "conflictsShown", "conflictKeys"],
     settings: ["theme", "windowMode", "goodAfter", "collectPlayerErrors", "playerNotice"]
   });
   registerDebug();
   registerKeys();
   Hooks.on("renderSettings", onRenderSettings);
+  // The key settings may have fixed a conflict: show the answer again
+  Hooks.on("closeControlsConfig", () => { if ( game.user.isGM ) refreshGuard(); });
   game.modules.get(MODULE_ID).api = {
     /** Open the window (GM). Options: {tab: "changes" | "check" | "back"}. */
     open: options => openGuard(options),
@@ -73,6 +77,12 @@ Hooks.once("init", () => {
       const {text, repo, terms} = describeReport({id, kind: options.kind, error: errorFor(id, options.key)});
       return {text, repo, terms};
     },
+    /**
+     * Where two active packages get in each other's way, read only: {findings, counts, wrapperLibrary}. A finding has
+     * kind ("key", "declared", "overrideTwice", "libraryConflict", "overrideAndWrap"), level ("bad", "warn", "note"),
+     * owners (keys like "module:id") and data.
+     */
+    conflicts: () => (game.user.isGM ? findConflicts() : {findings: [], counts: {bad: 0, warn: 0, note: 0, counted: 0, owners: []}}),
     /** Save the active modules as a loadout of Module Loadouts, when that module is active (GM). */
     saveModuleList: () => saveModuleList(),
     /** The current state of the installation as plain data. */

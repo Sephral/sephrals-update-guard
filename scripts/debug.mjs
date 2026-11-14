@@ -4,6 +4,7 @@
  */
 
 import {MODULE_ID, t} from "./config.mjs";
+import {findConflicts, wrapperLog} from "./conflicts.mjs";
 import {DebugTrace, registerDebugMenu, registerDebugProvider} from "./debug-file.mjs";
 import {store as playerStore} from "./players.mjs";
 import {parseHistory} from "./snapshots.mjs";
@@ -31,6 +32,11 @@ export function describeState() {
     watch: {listeners: watchState.listeners, hook: watchState.hook, probe: watchState.probeInstalled, since: log.since,
       compatibilityMode: CONFIG.compatibility?.mode, patterns: {
         include: CONFIG.compatibility?.includePatterns?.length ?? 0, exclude: CONFIG.compatibility?.excludePatterns?.length ?? 0}},
+    conflicts: (() => {
+      const {counts, wrapperLibrary} = findConflicts();
+      return {bad: counts.bad, warn: counts.warn, note: counts.note, wrapperLibrary, wrappersSeen: wrapperLog.registrations.size,
+        listening: wrapperLog.listening};
+    })(),
     errors: packages(log.errors, e => ({count: e.count, kinds: e.kinds})),
     players: {collecting: !!game.settings.get(MODULE_ID, "collectPlayerErrors"), notice: !!game.settings.get(MODULE_ID, "playerNotice"),
       entries: playerStore.entries.size, unread: playerStore.list({unreadOnly: true}).length,

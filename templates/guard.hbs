@@ -72,6 +72,12 @@
         {{#if ready.trial.length}}<span data-ready-trial><em>{{ready.trialTitle}}</em> {{#each ready.trial}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</span>{{/if}}
         {{#if ready.playerModules.length}}<span data-ready-players><em>{{ready.playerTitle}}</em> {{#each ready.playerModules}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</span>{{/if}}
         {{#if ready.fit}}<span>{{ready.fit}}</span>{{/if}}
+        {{#if ready.conflictLines.length}}
+        <span data-ready-conflicts><em>{{localize "SUG.Ready.conflictTitle"}}</em></span>
+        <ul class="sug-list sug-ready-versions">
+          {{#each ready.conflictLines}}<li>{{this}}</li>{{/each}}
+        </ul>
+        {{/if}}
         {{#if ready.hasPlayers}}
         <span data-ready-versions><em>{{ready.versionTitle}}</em></span>
         <ul class="sug-list sug-ready-versions">
@@ -125,6 +131,38 @@
       </ul>
     </section>
     {{/if}}
+
+    {{#if conflicts.hasItems}}
+    <section class="sug-section" data-section="conflicts">
+      <h2>{{localize "SUG.Conflicts.title"}} <span class="sug-count" data-conflicts-count>{{conflicts.count}}</span></h2>
+      <p class="sug-muted">{{conflicts.scope}}</p>
+      <ul class="sug-list sug-trouble">
+        {{#each conflicts.items}}
+        <li data-conflict="{{id}}" data-kind="{{kind}}" data-level="{{level}}" class="{{cls}}">
+          <div class="sug-row"><span class="sug-level sug-level-{{level}}">{{levelLabel}}</span> <span data-conflict-text>{{text}}</span></div>
+          {{#each details}}<div class="sug-muted sug-detail">{{this}}</div>{{/each}}
+          <div class="sug-next" data-conflict-next>{{next}}</div>
+          <div class="sug-buttons">
+            {{#if canKeys}}<button type="button" data-action="changeKeys"><i class="fa-solid fa-keyboard" inert></i> {{localize "SUG.Conflicts.keys"}}</button>{{/if}}
+            {{#each off}}<button type="button" data-action="switchOff" data-id="{{id}}">{{label}}</button>{{/each}}
+          </div>
+        </li>
+        {{/each}}
+      </ul>
+    </section>
+    {{/if}}
+    {{#if conflicts.hasNotes}}
+    <details class="sug-fold" data-section="conflict-notes"><summary>{{conflicts.notesTitle}}</summary>
+      <ul class="sug-list">
+        {{#each conflicts.notes}}
+        <li data-conflict="{{id}}" data-kind="{{kind}}" data-level="note"><span data-conflict-text>{{text}}</span>
+          {{#each details}}<div class="sug-muted sug-detail">{{this}}</div>{{/each}}
+          <div class="sug-muted">{{next}}</div></li>
+        {{/each}}
+      </ul>
+    </details>
+    {{/if}}
+    {{#if conflicts.none}}<p class="sug-muted" data-empty="conflicts">{{localize "SUG.Conflicts.none"}} {{conflicts.scope}}</p>{{/if}}
 
     {{#if errors.length}}
     <section class="sug-section" data-section="errors">

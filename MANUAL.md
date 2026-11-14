@@ -36,7 +36,7 @@ The run happens on the GM's screen only and takes about half a minute, the windo
 
 ### Ready for tonight?
 
-One click before a session. *Ready for tonight?* runs the test run, collects the errors your players had since you last marked them as read, asks the connected players' browsers which versions they run, and gives one answer with the next step. The order of the answers is: errors in the test run, errors of the players, browsers that differ, things that no longer fit. Under the answer stand the details.
+One click before a session. *Ready for tonight?* runs the test run, collects the errors your players had since you last marked them as read, asks the connected players' browsers which versions they run, and gives one answer with the next step. The order of the answers is: errors in the test run, errors of the players, browsers that differ, things that no longer fit, modules that get in each other's way. Under the answer stand the details.
 
 * **Browsers that differ.** Every connected player's browser answers with the version of Foundry, of the game system and of every active module, and the window compares them with yours. It names the player and what differs: a module with another version, a module that is missing there or only there. A page that was opened before an update still runs the old versions, so the usual next step is to reload the page with F5, and if that does not help, to clear the cache of the browser. A browser that does not answer within a few seconds is named too, it is most likely an old page. Only versions of Foundry, the system and the active modules are exchanged.
 * **No players connected.** Then only your side is checked, and the answer says so.
@@ -84,6 +84,19 @@ For a problem no error names. The search suspects what changed since the last st
 *Cancel and restore everything* works in every round. The module configuration from before the search is stored in a world setting, the search survives reloads and closed browsers, and the window opens by itself until the search is over. Update Guard itself is never switched off. A search looks for one module: when two modules together cause a problem, it may name neither.
 
 Other users notice nothing until they reload, so a search is best done without players.
+
+### Modules in each other's way
+
+Update Guard shows where two active modules get in each other's way before something breaks. It only reads what the modules registered, nothing is wrapped, replaced or changed. Every finding is one sentence with both module titles, a level and the next step. A world without findings shows one quiet line and no section.
+
+The levels: *Confirmed* is red, *Likely* is yellow, *Note* is grey and folded under *Good to know*. Only confirmed and likely findings count in *Ready for tonight?*, and only confirmed ones count as trouble in the headline of the first tab.
+
+* **Keys.** Two modules that react to the same key with the same modifiers (Ctrl, Shift, Alt in any order) are *Likely*, because usually only the first handler that takes the key press gets it. Actions count only when both listen to the same event (key down or key up). A key that is only held down as a modifier (Shift, Ctrl, Alt, Meta) is never reported, because several modules listening to it is normal. A module that shares a key with Foundry itself is a *Note*, modules do that on purpose with a higher precedence. Foundry and the game system sharing keys are not reported at all. *Change keys* opens Foundry's key settings.
+* **Declared conflicts.** A module can say in its manifest that it does not work together with another module or with a game system, optionally for a range of versions. If both are active and the version is inside that range, the finding is *Confirmed*.
+* **Wrappers.** When the wrapper library is active, Update Guard listens to its public hooks from the first moment, because it loads before the other modules. Two modules that replace the same method completely are *Confirmed*: the library says either that the second registration failed or that an override was replaced. A module that replaces a method completely while another module changes it as well is a *Note*. Plain wraps of one method by several modules are normal and never reported. When the library itself notices that a wrapper does not pass the call on, or that a wrapped method was replaced without it, that is *Likely*, and when the library cannot tell who replaced it, the finding is a *Note* that says the owner is unknown. Without the wrapper library nothing of this is checked, and the window says so.
+* **Sephral's own modules.** They are made to cooperate, so a clash between them is never red or yellow, at most a note.
+
+What is not checked, and why. Methods that modules replace without the wrapper library cannot be attributed to a module afterwards, and a single replaced method is no proof of a conflict, so Update Guard does not guess. The same goes for classes in `CONFIG` and for sheets registered as the default for the same type: once the last module has set them, nothing tells how many modules wanted them. Two wrapped methods are the same one only when the modules spell the target the same way, so a conflict can slip through when they do not.
 
 ### What the window lists
 
@@ -187,17 +200,18 @@ One key without a default, set it in Foundry's key settings under Update Guard: 
 | `api.snapshot()` | The current state: Foundry, system and modules with version, compatibility and manifest address. |
 | `api.history()` | The recorded states, newest first. |
 | `api.export()` | The export as plain data. |
+| `api.conflicts()` | The modules that get in each other's way, read only (GM): `{findings, counts, wrapperLibrary}`. A finding has `kind`, `level` (`bad`, `warn`, `note`), `owners` (such as `module:id`) and `data`. |
 | `api.watch()` | Errors and old calls counted since the page loaded, by package. |
 | `await api.runSelfTest()` | The self test. |
 | `api.saveDebugFile()` | The debug file. |
 
 ## Self test
 
-*Run self test* in the module settings checks what Update Guard relies on: how Foundry names package data and availability, that its version comparison agrees with Foundry's, the stored history, the early watch for errors and the counter for old calls, saving files, the module socket, the logic that cleans and counts the players' reports, the settings for them, that its own manifest names a GitHub repository, that the API of Module Loadouts has what the safety net uses when that module is active, and the texts it uses. The result comes as a notification and a chat message only you see, with the Foundry version the module was verified with. After a Foundry update you get a one time notice to run it.
+*Run self test* in the module settings checks what Update Guard relies on: how Foundry names package data and availability, that its version comparison agrees with Foundry's, the stored history, the early watch for errors and the counter for old calls, saving files, the module socket, the logic that cleans and counts the players' reports, the conflict finder with made up data and that it hears the wrapper library, the settings for them, that its own manifest names a GitHub repository, that the API of Module Loadouts has what the safety net uses when that module is active, and the texts it uses. The result comes as a notification and a chat message only you see, with the Foundry version the module was verified with. After a Foundry update you get a one time notice to run it.
 
 ## Debug file
 
-For bug reports, the GM saves one file about all of Sephral’s modules in this world: `Save debug file` in the module settings, or `Save Debug File (Sephral’s Modules)` in the context menu of a chat message. For Update Guard it holds the Foundry and system version, the recorded states with their marks, the counts of errors and old calls per package (no messages), for the errors of the players only how many there are per module and from how many players, and what the watch has installed.
+For bug reports, the GM saves one file about all of Sephral’s modules in this world: `Save debug file` in the module settings, or `Save Debug File (Sephral’s Modules)` in the context menu of a chat message. For Update Guard it holds the Foundry and system version, the recorded states with their marks, the counts of errors and old calls per package (no messages), for the errors of the players only how many there are per module and from how many players, how many conflicts of each level there are, and what the watch has installed.
 
 The file contains chat text and whispers. Check it before you share it.
 
@@ -212,7 +226,7 @@ The module can take part in a small usage report shared by all of Sephral’s mo
 With the GM’s consent only the active GM’s browser counts, and it sends at most one report a day. The counts are kept in a hidden world setting, so all browsers and computers of the GM count together, and turning the statistics off deletes them. A copy of a world gets its own world ID. The question lists everything the report contains, from the Foundry version to a random world ID. For Update Guard it holds:
 
 * on how many of the last 30 days the module was used
-* how often the GM opens the window, how often it opens by itself after a change, runs a test run, runs *Ready for tonight?*, starts a search, finds a module, switches a module off, changes the target, looks for newer versions, saves an export, copies an older manifest address, opens *Report this problem*, looks for open issues, saves the module list as a loadout, and how many errors of players arrived (a number, no content)
+* how often the GM opens the window, how often it opens by itself after a change, runs a test run, runs *Ready for tonight?*, sees modules in each other's way (once per page load), opens the key settings from there, starts a search, finds a module, switches a module off, changes the target, looks for newer versions, saves an export, copies an older manifest address, opens *Report this problem*, looks for open issues, saves the module list as a loadout, and how many errors of players arrived (a number, no content)
 * the settings *Look*, *After an update*, *Minutes without a module error*, *Errors of the players* and *Notice for errors of the players* (only the chosen option or number)
 * where errors occur in the module code: file, line, error type and whether the error arose in the module itself, in Foundry, in the game system or in another module, never the error message or the name of another module
 

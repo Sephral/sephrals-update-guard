@@ -9,6 +9,8 @@ import {MODULE_ID, TEMPLATES, addSettingsGear, copyText, isShown, setting, t} fr
 import {roundsLeft} from "./culprit.mjs";
 import {buildExport, exportFileName, exportText} from "./export-data.mjs";
 import {foundryPackagePage, hostOf, olderManifest, parseGithubManifest, safeHttpUrl} from "./links.mjs";
+import {comboText} from "./conflicts-data.mjs";
+import {displayKey, findConflicts, openControls} from "./conflicts.mjs";
 import {OnlineChecker} from "./online.mjs";
 import {backStatus, groupRows, runStatus, updateStatus} from "./overview.mjs";
 import {findProblems} from "./problems.mjs";
@@ -50,6 +52,7 @@ const session = {
   trialStep: null,
   ready: null,
   readyRunning: null,
+  conflictsCounted: false,
   safety: null
 };
 
@@ -127,6 +130,55 @@ function ownerInfo(owner) {
 }
 
 /**
+ * What is shown of the targets a conflict is about: the first few, then how many more.
+ * @param {string[]} [targets]
+ * @returns {string}
+ */
+function targetsText(targets = []) {
+  const shown = targets.slice(0, 3).join(", ");
+  return targets.length > 3 ? t("SUG.Conflicts.moreTargets", {targets: shown, count: targets.length - 3}) : shown;
+}
+
+/**
+ * One conflict as text: the sentence with both module titles, the level, the next step and what the switch-off buttons
+ * need.
+ * @param {object} finding   From findConflicts
+ * @param {Intl.ListFormat} list
+ * @returns {object}
+ */
+function conflictRow(finding, list) {
+  const title = owner => ((owner === "core") ? t("SUG.Conflicts.core") : ((owner === "unknown") ? t("SUG.Conflicts.unknown") : ownerInfo(owner).title));
+  const infos = finding.owners.filter(o => o.startsWith("module:")).map(o => ownerInfo(o));
+  const first = title(finding.owners[0]);
+  const second = title(finding.owners[1] ?? finding.owners[0]);
+  const data = {names: list.format(finding.owners.map(title)), a: first, b: second, targets: targetsText(finding.data.targets)};
+  let key = finding.kind;
+  const details = [];
+  if ( finding.kind === "key" ) {
+    data.combo = comboText(finding.data.key, finding.data.modifiers, displayKey);
+    const others = finding.owners.filter(o => !o.startsWith("module:"));
+    data.modules = list.format(infos.map(i => i.title));
+    data.other = list.format(others.map(title));
+    key = others.length ? "keyOther" : (finding.owners.length === 2 ? "key" : "keyMany");
+    for ( const entry of finding.data.names ) details.push(`${title(entry.owner)}: ${entry.name}`);
+  } else if ( finding.kind === "overrideAndWrap" ) {
+    const over = finding.data.overrider;
+    data.a = title(over);
+    data.b = title(finding.owners.find(o => o !== over) ?? over);
+  } else if ( finding.kind === "declared" ) {
+    const by = (finding.data.declaredBy ?? []).map(title);
+    if ( by.length ) details.push(t("SUG.Conflicts.declaredBy", {names: list.format(by)}));
+  }
+  const level = finding.level;
+  return {
+    id: finding.id, kind: finding.kind, level, cls: level === "bad" ? "sug-bad" : "sug-warn", levelLabel: t(`SUG.Conflicts.level.${level}`), own: !!finding.own,
+    text: t(`SUG.Conflicts.kind.${key}`, data), details, next: t(`SUG.Conflicts.next.${finding.kind}`),
+    canKeys: finding.kind === "key",
+    off: infos.filter(i => (i.id !== MODULE_ID) && !readSearch()).map(i => ({id: i.id, label: t("SUG.Conflicts.off", {title: i.title})}))
+  };
+}
+
+/**
  * The links of a package: changelog, project page, readme, from its manifest.
  * @param {string} id
  * @param {"module"|"system"} [kind]
@@ -174,7 +226,8 @@ export class GuardApp extends HandlebarsApplicationMixin(ApplicationV2) {
       readPlayers: GuardApp.#onReadPlayers,
       clearPlayers: GuardApp.#onClearPlayers,
       saveLoadout: GuardApp.#onSaveLoadout,
-      openLoadouts: GuardApp.#onOpenLoadouts
+      openLoadouts: GuardApp.#onOpenLoadouts,
+      changeKeys: GuardApp.#onChangeKeys
     }
   };
 
@@ -391,9 +444,10 @@ export class GuardApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const trial = this.#trial(current);
     trial.owners = trial.owners?.map(o => ({...o, canOff: this.#canSwitchOff(o), canReport: o.kind === "module"}));
     const players = this.#players();
+    const conflicts = this.#conflicts();
     const hasProblems = fits.some(p => p.severity === "problem");
     const troubled = new Set([...errors.map(e => e.id), ...fits.filter(p => p.severity === "problem").map(p => p.id),
-      ...(trial.owners ?? []).map(o => o.id), ...players.unreadIds]).size;
+      ...(trial.owners ?? []).map(o => o.id), ...players.unreadIds, ...conflicts.badIds]).size;
     const verdict = runStatus({hasPrevious: !!previous, changes: changes.count, troubled, trial: session.trial ?? current?.trial ?? null,
       good: !!current?.good});
     const lastCheck = session.trial ?? current?.trial;
@@ -412,6 +466,7 @@ export class GuardApp extends HandlebarsApplicationMixin(ApplicationV2) {
       errors: errors.filter(e => !trial.owners?.some(o => o.id === e.id)).map(e => ({...e, canOff: this.#canSwitchOff(e),
         canReport: e.kind === "module"})),
       players,
+      conflicts,
       ready: this.#ready(),
       errorsTotal: log.errorTotal(),
       errorsSince: dateText(log.since),
@@ -449,6 +504,28 @@ export class GuardApp extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   /**
+   * The modules that get in each other's way, as text. Read only, it is cheap enough to ask at every draw.
+   * @returns {object}
+   */
+  #conflicts() {
+    const {findings, counts, wrapperLibrary} = findConflicts();
+    const list = new Intl.ListFormat(game.i18n.lang || "en", {style: "long", type: "conjunction"});
+    const rows = findings.map(f => conflictRow(f, list));
+    if ( counts.counted && !session.conflictsCounted ) {
+      session.conflictsCounted = true;
+      countFeature(MODULE_ID, "conflictsShown");
+    }
+    const items = rows.filter(r => r.level !== "note");
+    const notes = rows.filter(r => r.level === "note");
+    const badIds = findings.filter(f => f.level === "bad").flatMap(f => f.owners).filter(o => o.startsWith("module:")).map(o => o.slice(7));
+    return {
+      none: !rows.length, items, hasItems: items.length > 0, count: items.length, notes, hasNotes: notes.length > 0,
+      notesTitle: t("SUG.Conflicts.notes", {count: notes.length}), badIds,
+      scope: t(wrapperLibrary ? "SUG.Conflicts.scope" : "SUG.Conflicts.scopeNoLibrary")
+    };
+  }
+
+  /**
    * The result of the check "Ready for tonight?" as text.
    * @returns {object|null}
    */
@@ -460,7 +537,7 @@ export class GuardApp extends HandlebarsApplicationMixin(ApplicationV2) {
       return {running: true, progress: t(running.phase === "players" ? "SUG.Ready.askingPlayers" : "SUG.Ready.testing")};
     }
     const a = ready.answer;
-    const names = {names: ready.trialModules.concat(ready.playerModules).slice(0, 3).join(", ")};
+    const names = {names: (a.key === "conflicts" ? (ready.conflictModules ?? []) : ready.trialModules.concat(ready.playerModules)).slice(0, 3).join(", ")};
     const players = ready.players.map(p => ({name: p.name, lines: p.lines}));
     return {
       running: false, level: a.level, key: a.key, at: dateText(ready.at),
@@ -470,6 +547,7 @@ export class GuardApp extends HandlebarsApplicationMixin(ApplicationV2) {
       trial: ready.trialModules, playerModules: ready.playerModules, players, hasPlayers: players.length > 0,
       connected: !ready.connected ? t("SUG.Ready.connectedNone") : (ready.connected === 1 ? t("SUG.Ready.connectedOne") : t("SUG.Ready.connected", {count: ready.connected})),
       fit: ready.fitProblems ? t("SUG.Ready.fit", {count: ready.fitProblems}) : "",
+      conflictLines: ready.conflictLines ?? [],
       trialTitle: t("SUG.Ready.trialTitle"), playerTitle: t("SUG.Ready.playerTitle"), versionTitle: t("SUG.Ready.versionTitle")
     };
   }
@@ -877,6 +955,12 @@ export class GuardApp extends HandlebarsApplicationMixin(ApplicationV2) {
     await switchOff(id);
   }
 
+  /** Open the key settings of Foundry. */
+  static async #onChangeKeys() {
+    countFeature(MODULE_ID, "conflictKeys");
+    await openControls();
+  }
+
   /** @this {GuardApp} */
   static async #onOnline() {
     if ( session.running ) return;
@@ -1156,8 +1240,14 @@ function buildReady(trial, versions) {
   });
   const fitProblems = findProblems({core: state.core, system: state.system, modules: state.modules})
     .filter(p => p.severity === "problem").length;
-  const answer = readyAnswer({trialModules, playerModules, players, connected: versions.players.length, fitProblems, trialDone: !!trial});
-  return {at: new Date().toISOString(), answer, trialModules, playerModules, players, connected: versions.players.length, fitProblems};
+  const found = findConflicts();
+  const list = new Intl.ListFormat(game.i18n.lang || "en", {style: "long", type: "conjunction"});
+  const conflictLines = found.findings.filter(f => f.level !== "note").map(f => conflictRow(f, list).text);
+  const conflictModules = [...new Set(found.counts.owners.filter(o => o.startsWith("module:")).map(o => ownerInfo(o).title))];
+  const answer = readyAnswer({trialModules, playerModules, players, connected: versions.players.length, fitProblems, trialDone: !!trial,
+    conflicts: found.counts.counted, conflictModules});
+  return {at: new Date().toISOString(), answer, trialModules, playerModules, players, connected: versions.players.length, fitProblems,
+    conflictLines, conflictModules};
 }
 
 /**

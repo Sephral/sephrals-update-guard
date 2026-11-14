@@ -115,6 +115,42 @@
       "systemRange": "is made for {system} from {minimum} to {maximum}, installed is {version}.",
       "foundry": "has the status \"{text}\" in Foundry."
     },
+    "Conflicts": {
+      "title": "Modules in each other's way",
+      "scope": "Checked: key bindings, wrappers, declared conflicts. Nothing was changed.",
+      "scopeNoLibrary": "Checked: key bindings and declared conflicts. The wrapper library is not active, so wrappers were not checked. Nothing was changed.",
+      "none": "No two active modules get in each other's way.",
+      "notes": "Good to know ({count})",
+      "core": "Foundry",
+      "level": {
+        "bad": "Confirmed",
+        "warn": "Likely",
+        "note": "Note"
+      },
+      "off": "Switch off {title}",
+      "keys": "Change keys",
+      "moreTargets": "{targets} and {count} more",
+      "declaredBy": "Declared by {names}.",
+      "kind": {
+        "key": "{a} and {b} both react to the key {combo}. Usually only one of them gets the keypress.",
+        "keyMany": "{names} all react to the key {combo}. Usually only one of them gets the keypress.",
+        "keyOther": "{modules} and {other} react to the same key, {combo}. Modules do that on purpose at times.",
+        "declared": "{a} and {b} are declared as not working together by their authors.",
+        "overrideTwice": "{a} and {b} both replace {targets} completely. Only one of the two can work.",
+        "libraryConflict": "The wrapper library saw {a} and {b} get in each other's way on {targets}.",
+        "overrideAndWrap": "{a} replaces {targets} completely and {b} changes it as well.",
+        "replacedUnknown": "Something that is not a module replaced {targets} without the wrapper library, and {a} wraps it. Who did it is unknown."
+      },
+      "next": {
+        "key": "Give one of them another key in the key settings.",
+        "declared": "Switch one of them off. If something already broke, \"Something broken?\" finds out which.",
+        "overrideTwice": "Only one of them can replace it. Switch one of them off.",
+        "libraryConflict": "If one of them misbehaves, switch the other one off to check.",
+        "overrideAndWrap": "Normally fine. If one of the changes is missing, this is the reason.",
+        "replacedUnknown": "If {a} misbehaves, \"Something broken?\" finds the module behind it."
+      },
+      "unknown": "Unknown code"
+    },
     "AVAIL": {
       "UNVERIFIED_BUILD": "not verified for this Foundry build",
       "UNVERIFIED_GENERATION": "not verified for this Foundry generation",
@@ -302,7 +338,8 @@
       "Players": "The logic for the errors of the players does not work as expected.",
       "PlayerSettings": "The settings for the errors of the players are not registered.",
       "Repository": "The manifest of the module names no GitHub repository.",
-      "Loadouts": "Module Loadouts is active but its API has no saveCurrent."
+      "Loadouts": "Module Loadouts is active but its API has no saveCurrent.",
+      "Conflicts": "The conflict finder does not work as expected."
     },
     "DEBUG": {
       "Title": "Debug file",
@@ -508,7 +545,8 @@
         "playerList": "Open the list of the players' errors below. Report the problem or switch the module off, then mark the list as read.",
         "reload": "Ask the players named below to reload the page with F5. If that does not help, they clear the cache of their browser.",
         "fitList": "The list below says what no longer fits.",
-        "play": "Nothing stands in your way. Have a good session."
+        "play": "Nothing stands in your way. Have a good session.",
+        "conflictList": "The list below says which modules they are and what you can do."
       },
       "diff": {
         "silent": "did not answer, probably an old page. Ask for a reload.",
@@ -517,7 +555,9 @@
         "different": "{title} {player}, yours is {gm}.",
         "missing": "Missing there: {names}.",
         "extra": "Only there: {names}."
-      }
+      },
+      "conflicts": "Not yet. Modules get in each other's way: {names}.",
+      "conflictTitle": "Modules in each other's way:"
     },
     "Safety": {
       "summary": "Before you update: save the module list and make a backup",

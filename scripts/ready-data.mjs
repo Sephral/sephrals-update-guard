@@ -11,20 +11,25 @@
  * @param {{name: string, silent?: boolean, kinds: string[]}[]} data.players   Players whose browsers differ or did not answer
  * @param {number} data.connected           How many players are connected
  * @param {number} data.fitProblems         How many packages no longer fit (manifest ranges, dependencies)
+ * @param {number} [data.conflicts]         How many modules get in each other's way (confirmed or likely)
+ * @param {string[]} [data.conflictModules] Titles of the modules that are part of those conflicts
  * @param {boolean} data.trialDone          Did the test run finish?
  * @returns {{level: "good"|"warn"|"bad", key: string, count: number, next: string, findings: string[]}}
  */
-export function readyAnswer({trialModules = [], playerModules = [], players = [], connected = 0, fitProblems = 0, trialDone = true}) {
+export function readyAnswer({trialModules = [], playerModules = [], players = [], connected = 0, fitProblems = 0, trialDone = true,
+  conflicts = 0}) {
   const findings = [];
   if ( !trialDone ) return {level: "warn", key: "notRun", count: 0, next: "run", findings};
   if ( trialModules.length ) findings.push("errors");
   if ( playerModules.length ) findings.push("playerErrors");
   if ( players.length ) findings.push("versions");
   if ( fitProblems ) findings.push("fit");
+  if ( conflicts ) findings.push("conflicts");
   if ( trialModules.length ) return {level: "bad", key: "errors", count: trialModules.length, next: "fixModules", findings};
   if ( playerModules.length ) return {level: "warn", key: "playerErrors", count: playerModules.length, next: "playerList", findings};
   if ( players.length ) return {level: "warn", key: "versions", count: players.length, next: "reload", findings};
   if ( fitProblems ) return {level: "warn", key: "fit", count: fitProblems, next: "fitList", findings};
+  if ( conflicts ) return {level: "warn", key: "conflicts", count: conflicts, next: "conflictList", findings};
   return {level: "good", key: connected ? "ready" : "readyAlone", count: connected, next: "play", findings};
 }
 

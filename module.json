@@ -2,7 +2,7 @@
   "id": "sephrals-update-guard",
   "title": "Sephral’s Update Guard",
   "description": "Is your world still working after an update? A test run shows it in half a minute, the search finds the module behind a problem, and you see what is ready for the next Foundry and how to get back.",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "library": true,
   "compatibility": {
     "minimum": 13,

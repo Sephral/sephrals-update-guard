@@ -10,14 +10,14 @@
 
 ## Highlights
 
-* **Ready for tonight?** One click before the session: a test run, the errors your players had, and whether their browsers run the same versions as yours. One answer and one next step.
-* **Errors of your players:** a module breaks in a player's browser and you hear about it, with the module, the player, the place and how often, plus a quiet notice during play. Players see nothing, and nothing personal is sent.
-* **Report in one step:** for the module to blame, Update Guard checks on your click whether the problem is known on GitHub and writes a ready bug report.
-* **Test run:** one click opens what a game night opens, sheets, journal, chat cards, scene tools, settings, and closes it again. You see which module threw an error and where. Your world is not changed.
-* **Find the module:** no error says why something fails? The search suspects what changed and what your players' errors point at, and after a few rounds the module is known and everything is as it was.
-* **Can I update?** Pick a Foundry version and see in one sentence what stands in the way. Before you update, save your module list as a loadout and get a reminder for the backup.
-* **Newer versions on your click:** asks the public package list of The Forge what is new. The window tells you what is sent first.
-* **What changed and the way back:** every change with its changelog, the last state that worked, and the steps back in Foundry's setup.
+* **Ready for tonight?** One click before the session: a test run, the errors your players had, and whether their browsers run your versions. One answer, one next step.
+* **Errors of your players:** a module breaks in a player's browser and you hear about it, with module, player and place. Nothing personal is sent.
+* **Report in one step:** Update Guard checks on your click whether the problem is known on GitHub and writes a ready bug report.
+* **Modules in each other's way:** two modules on the same key, modules their authors say do not work together, two modules that replace the same part of Foundry. One sentence with both names and what to do.
+* **Test run:** one click opens what a game night opens and closes it again. You see which module threw an error and where. Your world is not changed.
+* **Find the module:** the search narrows it down in a few rounds, and everything is as it was.
+* **Can I update?** Pick a Foundry version and see in one sentence what stands in the way. Save your module list before you update.
+* **What changed and the way back:** every change with its changelog, the last state that worked, and the steps back.
 
 ## How it works
 
@@ -27,7 +27,7 @@
 
 ## Good to know
 
-Update Guard runs only in a started world and cannot install or roll back anything, because Foundry does that on its setup screen. It shows the way and gives you the addresses. Verified means what the author wrote into the manifest, it is no promise that nothing breaks. Only the GM sees the windows. Players send short error reports in the background, which you can switch off.
+Update Guard runs only in a started world and cannot install or roll back anything, because Foundry does that on its setup screen. It shows the way. Verified means what the author wrote into the manifest, no promise that nothing breaks. Only the GM sees the windows.
 
 ## Install
 

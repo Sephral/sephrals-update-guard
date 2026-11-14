@@ -115,6 +115,42 @@
       "systemRange": "ist für {system} von {minimum} bis {maximum} gemacht, installiert ist {version}.",
       "foundry": "hat in Foundry den Status \"{text}\"."
     },
+    "Conflicts": {
+      "title": "Module, die sich in die Quere kommen",
+      "scope": "Geprüft: Tastenbelegung, Wrapper, angegebene Konflikte. Es wurde nichts verändert.",
+      "scopeNoLibrary": "Geprüft: Tastenbelegung und angegebene Konflikte. Die Wrapper-Bibliothek ist nicht aktiv, deshalb wurden Wrapper nicht geprüft. Es wurde nichts verändert.",
+      "none": "Keine zwei aktiven Module kommen sich in die Quere.",
+      "notes": "Gut zu wissen ({count})",
+      "core": "Foundry",
+      "level": {
+        "bad": "Sicher",
+        "warn": "Wahrscheinlich",
+        "note": "Hinweis"
+      },
+      "off": "{title} ausschalten",
+      "keys": "Tasten ändern",
+      "moreTargets": "{targets} und {count} weitere",
+      "declaredBy": "Angegeben von {names}.",
+      "kind": {
+        "key": "{a} und {b} reagieren beide auf die Taste {combo}. Meist bekommt nur eines den Tastendruck.",
+        "keyMany": "{names} reagieren alle auf die Taste {combo}. Meist bekommt nur eines den Tastendruck.",
+        "keyOther": "{modules} und {other} reagieren auf dieselbe Taste, {combo}. Module tun das manchmal mit Absicht.",
+        "declared": "{a} und {b} vertragen sich nicht, das geben die Autoren selbst an.",
+        "overrideTwice": "{a} und {b} ersetzen beide {targets} komplett. Nur eines von beiden kann funktionieren.",
+        "libraryConflict": "Die Wrapper-Bibliothek hat bemerkt, dass sich {a} und {b} bei {targets} in die Quere kommen.",
+        "overrideAndWrap": "{a} ersetzt {targets} komplett, und {b} verändert es ebenfalls.",
+        "replacedUnknown": "Etwas, das kein Modul ist, hat {targets} ohne die Wrapper-Bibliothek ersetzt, und {a} umhüllt es. Wer es war, ist unbekannt."
+      },
+      "next": {
+        "key": "Gib einem der beiden in den Tasteneinstellungen eine andere Taste.",
+        "declared": "Schalte eines der beiden aus. Wenn schon etwas nicht geht, findet „Etwas geht nicht?“ heraus, welches.",
+        "overrideTwice": "Nur eines von beiden kann es ersetzen. Schalte eines der beiden aus.",
+        "libraryConflict": "Wenn eines davon Probleme macht, schalte zur Probe das andere aus.",
+        "overrideAndWrap": "Normalerweise unproblematisch. Fehlt eine der Änderungen, liegt es daran.",
+        "replacedUnknown": "Wenn {a} Probleme macht, findet „Etwas geht nicht?“ das Modul dahinter."
+      },
+      "unknown": "Unbekannter Code"
+    },
     "AVAIL": {
       "UNVERIFIED_BUILD": "für diesen Build von Foundry nicht geprüft",
       "UNVERIFIED_GENERATION": "für diese Generation von Foundry nicht geprüft",
@@ -302,7 +338,8 @@
       "Players": "Die Logik für die Fehler der Spielenden arbeitet nicht wie erwartet.",
       "PlayerSettings": "Die Einstellungen für die Fehler der Spielenden sind nicht registriert.",
       "Repository": "Im Manifest des Moduls steht kein GitHub Repository.",
-      "Loadouts": "Module Loadouts ist aktiv, aber seine API hat kein saveCurrent."
+      "Loadouts": "Module Loadouts ist aktiv, aber seine API hat kein saveCurrent.",
+      "Conflicts": "Die Konfliktsuche funktioniert nicht wie erwartet."
     },
     "DEBUG": {
       "Title": "Debug Datei",
@@ -508,7 +545,8 @@
         "playerList": "Öffne unten die Liste der Fehler der Spielenden. Melde das Problem oder schalte das Modul aus und markiere die Liste dann als gelesen.",
         "reload": "Bitte die unten genannten Spielenden, die Seite mit F5 neu zu laden. Hilft das nicht, leeren sie den Cache ihres Browsers.",
         "fitList": "Die Liste unten sagt, was nicht mehr passt.",
-        "play": "Dir steht nichts im Weg. Viel Spaß bei der Runde."
+        "play": "Dir steht nichts im Weg. Viel Spaß bei der Runde.",
+        "conflictList": "Die Liste darunter zeigt, welche Module das sind und was du tun kannst."
       },
       "diff": {
         "silent": "hat nicht geantwortet, vermutlich eine alte Seite. Bitte um einen Neustart der Seite.",
@@ -517,7 +555,9 @@
         "different": "{title} {player}, bei dir {gm}.",
         "missing": "Fehlt dort: {names}.",
         "extra": "Nur dort: {names}."
-      }
+      },
+      "conflicts": "Noch nicht. Module kommen sich in die Quere: {names}.",
+      "conflictTitle": "Module in der Quere:"
     },
     "Safety": {
       "summary": "Vor dem Update: Modulliste sichern und ein Backup machen",
