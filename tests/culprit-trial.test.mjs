@@ -3,7 +3,7 @@ import {test} from "node:test";
 
 import {advanceSearch, beginSearch, chooseHalf, isSearch, restoredConfig, roundsLeft, searchConfig, suspectsSince,
   withDependents} from "../scripts/culprit.mjs";
-import {backStatus, groupRows, runStatus, updateStatus} from "../scripts/overview.mjs";
+import {backStatus, countTroubled, groupRows, runStatus, updateStatus} from "../scripts/overview.mjs";
 import {noteTrial} from "../scripts/snapshots.mjs";
 import {countDelta, storedTrial, summarizeTrial} from "../scripts/trial-data.mjs";
 
@@ -156,4 +156,16 @@ test("the rows of the check: what needs attention open and first, a row in one g
   assert.deepEqual(groups.map(g => [g.key, g.rows.map(r => r.id), g.open]), [["blocked", [2], true], ["update", [6], true],
     ["breaks", [3], true], ["waiting", [1, 5], false], ["ready", [4, 7], false]]);
   assert.deepEqual(groupRows([]), []);
+});
+
+test("the headline counts each package once, old players' errors only while their module runs", () => {
+  const running = new Set(["a", "b", "dnd5e"]);
+  const is = id => running.has(id);
+  assert.equal(countTroubled([[], [], [], []], [], is), 0);
+  assert.equal(countTroubled([["a"], [], ["a"], []], [], is), 1, "one module named twice counts once");
+  assert.equal(countTroubled([["a"], [], ["a"], []], ["old"], is), 1, "an old players' error of a module that is off does not count");
+  assert.equal(countTroubled([[], [], [], []], ["old"], is), 0, "only such an error: the headline says all is well");
+  assert.equal(countTroubled([[], [], [], []], ["b"], is), 1, "a players' error of a running module counts");
+  assert.equal(countTroubled([[], ["off"], [], []], [], is), 1, "a module switched off because it does not fit still counts");
+  assert.equal(countTroubled([["a"], ["dnd5e"], [], ["gone"]], ["b", "gone"], is), 4);
 });

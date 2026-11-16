@@ -12,7 +12,7 @@ import {foundryPackagePage, hostOf, olderManifest, parseGithubManifest, safeHttp
 import {comboText} from "./conflicts-data.mjs";
 import {displayKey, findConflicts, openControls} from "./conflicts.mjs";
 import {OnlineChecker} from "./online.mjs";
-import {backStatus, groupRows, runStatus, updateStatus} from "./overview.mjs";
+import {backStatus, countTroubled, groupRows, runStatus, updateStatus} from "./overview.mjs";
 import {findProblems} from "./problems.mjs";
 import {countStatuses, maximumReaches, minimumFits, rateAll, verdictLine} from "./rating.mjs";
 import {countChanges, diffStates, lastGood, rollbackTargets} from "./snapshots.mjs";
@@ -446,8 +446,9 @@ export class GuardApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const players = this.#players();
     const conflicts = this.#conflicts();
     const hasProblems = fits.some(p => p.severity === "problem");
-    const troubled = new Set([...errors.map(e => e.id), ...fits.filter(p => p.severity === "problem").map(p => p.id),
-      ...(trial.owners ?? []).map(o => o.id), ...players.unreadIds, ...conflicts.badIds]).size;
+    const troubled = countTroubled([errors.map(e => e.id), fits.filter(p => p.severity === "problem").map(p => p.id),
+      (trial.owners ?? []).map(o => o.id), conflicts.badIds], players.unreadIds,
+    id => (id === game.system.id) || !!game.modules.get(id)?.active);
     const verdict = runStatus({hasPrevious: !!previous, changes: changes.count, troubled, trial: session.trial ?? current?.trial ?? null,
       good: !!current?.good});
     const lastCheck = session.trial ?? current?.trial;

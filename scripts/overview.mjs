@@ -23,6 +23,20 @@ export function runStatus({hasPrevious, changes, troubled, trial, good}) {
 }
 
 /**
+ * The packages the headline of the first tab counts as trouble, each once. Errors, fit problems, the test run and conflicts
+ * always count (a module Foundry switched off because it does not fit is trouble). The players' errors are stored and
+ * stay until they are read: an old one about a module that is switched off or gone cannot be acted on, so it only
+ * counts while that package runs (it stays listed in its own section until it is marked as read).
+ * @param {string[][]} lists              Package ids from errors, fit problems, test run and conflicts
+ * @param {string[]} playerIds            Package ids of the unread players' errors
+ * @param {(id: string) => boolean} isRunning   Is the package active now?
+ * @returns {number}
+ */
+export function countTroubled(lists, playerIds, isRunning) {
+  return new Set([...lists.flat(), ...playerIds.filter(id => isRunning(id))]).size;
+}
+
+/**
  * Can I update?
  * @param {Record<string, number>} counts   Packages per rating
  * @param {number} breaks                   Packages that call functions the target removes, among the rest
