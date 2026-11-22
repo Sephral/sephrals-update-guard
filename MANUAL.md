@@ -202,6 +202,7 @@ One key without a default, set it in Foundry's key settings under Update Guard: 
 | `api.export()` | The export as plain data. |
 | `api.conflicts()` | The modules that get in each other's way, read only (GM): `{findings, counts, wrapperLibrary}`. A finding has `kind`, `level` (`bad`, `warn`, `note`), `owners` (such as `module:id`) and `data`. |
 | `api.watch()` | Errors and deprecated calls counted since the page loaded, by package. |
+| `api.samples()` | The sample windows: the window with its three questions in every state, the search, *Ready for tonight?*, *Report this problem*, the questions and the export text, filled with made-up modules and results. Nothing in them runs a test run, switches a module off, starts a search, asks the network or is saved or counted. Sephral’s Translator lists them so translators see every text in its place |
 | `await api.runSelfTest()` | The self test. |
 | `api.saveDebugFile()` | The debug file. |
 

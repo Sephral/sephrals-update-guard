@@ -572,6 +572,56 @@
       "backupOn": "Make a backup of what you cannot lose before you update. Content Backup & Restore is active: its entry is in the context menu of scenes, actors, items and journals.",
       "backupOff": "Make a backup before you update. In Foundry's setup, \"{snapshot}\" saves everything, or copy the Data folder of Foundry.",
       "backupLink": "About Content Backup & Restore"
+    },
+    "Sample": {
+      "group": {
+        "questions": "Questions",
+        "texts": "Copied texts"
+      },
+      "entry": {
+        "runTrouble": "Trouble found",
+        "runOne": "One module in trouble",
+        "runTested": "Test run without errors",
+        "runRan": "Ran well, changes since",
+        "runChanged": "Changed, not checked",
+        "runUntested": "Not checked yet",
+        "runFirst": "First start",
+        "trialRunning": "Test run in progress",
+        "readyRunning": "Ready for tonight: asking the players",
+        "readyErrors": "Ready for tonight: errors in the test run",
+        "readyPlayers": "Ready for tonight: errors of the players",
+        "readyVersions": "Ready for tonight: different versions",
+        "readyFit": "Ready for tonight: packages no longer fit",
+        "readyConflicts": "Ready for tonight: modules in each other's way",
+        "readyGood": "Ready for tonight: ready",
+        "readyAlone": "Ready for tonight: nobody connected",
+        "searchTesting": "Module search: a round",
+        "searchFound": "Module search: found",
+        "searchNoneChanged": "Module search: not one of the changed modules",
+        "searchNoneAll": "Module search: not a module",
+        "checkBlocked": "Modules block the update",
+        "checkBlockedOne": "One module blocks it, not checked online",
+        "checkBreaks": "Modules could break",
+        "checkBreaksOne": "One module could break",
+        "checkUpdate": "Modules need an update first",
+        "checkUpdateOne": "One module needs an update first",
+        "checkOpen": "Nothing speaks against it",
+        "checkReady": "Everything is ready",
+        "backOlder": "Last good state with changes",
+        "backSame": "Last good state, same modules",
+        "backCurrent": "Current state is good",
+        "backNone": "No good state yet",
+        "reportStart": "Before the search for issues",
+        "reportFound": "Open issues found",
+        "reportNone": "No open issue matches",
+        "reportFailed": "The search did not work",
+        "reportLoading": "Searching",
+        "reportNoRepo": "No repository known",
+        "reportNoMessage": "No error message",
+        "searchIntro": "Start the module search",
+        "searchIntroAll": "Start the module search, no module changed",
+        "exportText": "Export before an update"
+      }
     }
   }
 }

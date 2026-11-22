@@ -54,6 +54,9 @@ export function describeReport({id, kind = "module", error}) {
 }
 
 export class ReportApp extends HandlebarsApplicationMixin(ApplicationV2) {
+  /** What a sample window is about (made-up, see sample-windows.mjs), null for the real window. */
+  sampleData = null;
+
   /** @override */
   static DEFAULT_OPTIONS = {
     id: "sug-report",
@@ -78,7 +81,7 @@ export class ReportApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
   /** @override */
   async _prepareContext() {
-    const r = current;
+    const r = this.sampleData ?? current;
     const found = r.lookup;
     const where = r.error?.where?.type && (r.error.where.type !== "script")
       ? t(`SUG.Players.where.${r.error.where.type}`, {name: r.error.where.name}).trim() : "";
@@ -103,14 +106,16 @@ export class ReportApp extends HandlebarsApplicationMixin(ApplicationV2) {
     this.element.dataset.sugTheme = setting("theme");
     addSettingsGear(this.element);
     this.element.querySelector("textarea[name=reportText]")?.addEventListener("input", event => {
-      current.text = {...current.text, body: event.currentTarget.value};
+      const r = this.sampleData ?? current;
+      r.text = {...r.text, body: event.currentTarget.value};
     });
   }
 
   /** @override */
   _onClose(options) {
     super._onClose?.(options);
-    instance = null;
+    // A sample window must not forget the real one
+    if ( instance === this ) instance = null;
   }
 
   /** @this {ReportApp} */

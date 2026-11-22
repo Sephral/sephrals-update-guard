@@ -37,7 +37,7 @@ export const TABS = ["changes", "check", "back"];
 /**
  * What the window keeps between openings: the target, the online results of the last hour, the open tab.
  */
-const session = {
+const liveSession = {
   tab: "changes",
   targetText: "",
   checker: null,
@@ -62,6 +62,37 @@ const TRIAL_WHERE = {actor: "sheet", item: "sheet", journal: "sheet", table: "sh
 
 /** The icon of each level of an answer. */
 const LEVEL_ICONS = {good: "fa-circle-check", warn: "fa-circle-exclamation", bad: "fa-triangle-exclamation", new: "fa-shield-halved"};
+
+/** The data the window reads: the real installation, or made-up data while a sample window builds its content. */
+const live = {
+  collectState, readHistory, findConflicts, readSearch, safetyOptions, log, playerStore,
+  playersOn: () => !!setting("collectPlayerErrors"),
+  systemId: () => game.system.id,
+  isRunning: id => (id === game.system.id) || !!game.modules.get(id)?.active,
+  title: (kind, id) => ((kind === "module") ? (game.modules.get(id)?.title ?? id) : (game.system.id === id ? game.system.title : id)),
+  package: (id, kind) => ((kind === "system") ? game.system : game.modules.get(id))
+};
+let feed = live;
+let session = liveSession;
+
+/**
+ * Run a function that builds the content of a sample window with made-up data instead of the real installation. The
+ * function must be synchronous, nothing else reads the data while it runs.
+ * @template T
+ * @param {{feed: object, session: object}} bundle   The made-up data (see sample-data.mjs) and the window's own memory
+ * @param {() => T} work
+ * @returns {T}
+ */
+export function withSampleData(bundle, work) {
+  const before = [feed, session];
+  feed = bundle.feed;
+  session = bundle.session;
+  try {
+    return work();
+  } finally {
+    [feed, session] = before;
+  }
+}
 
 /** The checker with its memory. */
 function checker() {
@@ -124,8 +155,7 @@ export function compatText(compat) {
  */
 function ownerInfo(owner) {
   const {kind, id} = splitOwner(owner);
-  if ( kind === "module" ) return {kind, id, title: game.modules.get(id)?.title ?? id};
-  if ( kind === "system" ) return {kind, id, title: game.system.id === id ? game.system.title : id};
+  if ( (kind === "module") || (kind === "system") ) return {kind, id, title: feed.title(kind, id)};
   return {kind, id, title: kind === "world" ? t("SUG.Errors.world") : t("SUG.Errors.other")};
 }
 
@@ -146,7 +176,7 @@ function targetsText(targets = []) {
  * @param {Intl.ListFormat} list
  * @returns {object}
  */
-function conflictRow(finding, list) {
+export function conflictRow(finding, list) {
   const title = owner => ((owner === "core") ? t("SUG.Conflicts.core") : ((owner === "unknown") ? t("SUG.Conflicts.unknown") : ownerInfo(owner).title));
   const infos = finding.owners.filter(o => o.startsWith("module:")).map(o => ownerInfo(o));
   const first = title(finding.owners[0]);
@@ -174,7 +204,7 @@ function conflictRow(finding, list) {
     id: finding.id, kind: finding.kind, level, cls: level === "bad" ? "sug-bad" : "sug-warn", levelLabel: t(`SUG.Conflicts.level.${level}`), own: !!finding.own,
     text: t(`SUG.Conflicts.kind.${key}`, data), details, next: t(`SUG.Conflicts.next.${finding.kind}`),
     canKeys: finding.kind === "key",
-    off: infos.filter(i => (i.id !== MODULE_ID) && !readSearch()).map(i => ({id: i.id, label: t("SUG.Conflicts.off", {title: i.title})}))
+    off: infos.filter(i => (i.id !== MODULE_ID) && !feed.readSearch()).map(i => ({id: i.id, label: t("SUG.Conflicts.off", {title: i.title})}))
   };
 }
 
@@ -185,7 +215,7 @@ function conflictRow(finding, list) {
  * @returns {{label: string, href: string}[]}
  */
 function packageLinks(id, kind = "module") {
-  const pkg = (kind === "system") ? game.system : game.modules.get(id);
+  const pkg = feed.package(id, kind);
   if ( !pkg ) return [];
   const links = [];
   const add = (label, value) => {
@@ -237,6 +267,9 @@ export class GuardApp extends HandlebarsApplicationMixin(ApplicationV2) {
   /** The tab to show first on the next render. */
   static openTab = null;
 
+  /** Made-up data of a sample window (the subclass in sample-windows.mjs sets it), null for the real window. */
+  sampleBundle = null;
+
   /** @override */
   get title() {
     return t("SUG.Window.title");
@@ -244,8 +277,8 @@ export class GuardApp extends HandlebarsApplicationMixin(ApplicationV2) {
 
   /** @override */
   async _prepareContext() {
-    const state = collectState();
-    const history = readHistory();
+    const state = feed.collectState();
+    const history = feed.readHistory();
     const target = parseTarget(session.targetText) || defaultTarget(game.version);
     // All three questions are answered on every render: the answers stand on the tabs
     const parts = {
@@ -281,10 +314,12 @@ export class GuardApp extends HandlebarsApplicationMixin(ApplicationV2) {
     this.element.dataset.sugTheme = setting("theme");
     addSettingsGear(this.element);
     const input = this.element.querySelector("input[name=target]");
+    // A sample window keeps the typed target in its own memory and counts nothing
+    const own = this.sampleBundle?.session ?? session;
     const apply = () => {
-      if ( input.value === session.targetText ) return;
-      session.targetText = input.value;
-      countFeature(MODULE_ID, "checkRun");
+      if ( input.value === own.targetText ) return;
+      own.targetText = input.value;
+      if ( !this.sampleBundle ) countFeature(MODULE_ID, "checkRun");
       this.render();
     };
     input?.addEventListener("keydown", event => {
@@ -305,7 +340,7 @@ export class GuardApp extends HandlebarsApplicationMixin(ApplicationV2) {
    * @returns {object|null}
    */
   #search(state) {
-    const search = readSearch();
+    const search = feed.readSearch();
     if ( !search ) return null;
     const title = id => state.modules.find(m => m.id === id)?.title ?? id;
     const base = {phase: search.phase, testing: search.phase === "testing", found: search.phase === "found",
@@ -387,7 +422,7 @@ export class GuardApp extends HandlebarsApplicationMixin(ApplicationV2) {
    * @returns {boolean}
    */
   #canSwitchOff(row) {
-    return (row.kind === "module") && (row.id !== MODULE_ID) && !readSearch();
+    return (row.kind === "module") && (row.id !== MODULE_ID) && !feed.readSearch();
   }
 
   /* -------------------------------------------- */
@@ -417,7 +452,7 @@ export class GuardApp extends HandlebarsApplicationMixin(ApplicationV2) {
         text: diff.system.newId ? t("SUG.Changes.systemOther", {from: diff.system.fromId, to: diff.system.id})
           : t(diff.system.newer ? "SUG.Changes.systemUp" : "SUG.Changes.systemDown",
             {title: diff.system.title, from: diff.system.from, to: diff.system.to}),
-        links: packageLinks(game.system.id, "system")
+        links: packageLinks(feed.systemId(), "system")
       } : null,
       updated: diff.updated.map(m => withLinks({...m, text: t(m.newer ? "SUG.Changes.up" : "SUG.Changes.down", m),
         inactive: !m.active})),
@@ -448,7 +483,7 @@ export class GuardApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const hasProblems = fits.some(p => p.severity === "problem");
     const troubled = countTroubled([errors.map(e => e.id), fits.filter(p => p.severity === "problem").map(p => p.id),
       (trial.owners ?? []).map(o => o.id), conflicts.badIds], players.unreadIds,
-    id => (id === game.system.id) || !!game.modules.get(id)?.active);
+    id => feed.isRunning(id));
     const verdict = runStatus({hasPrevious: !!previous, changes: changes.count, troubled, trial: session.trial ?? current?.trial ?? null,
       good: !!current?.good});
     const lastCheck = session.trial ?? current?.trial;
@@ -469,8 +504,8 @@ export class GuardApp extends HandlebarsApplicationMixin(ApplicationV2) {
       players,
       conflicts,
       ready: this.#ready(),
-      errorsTotal: log.errorTotal(),
-      errorsSince: dateText(log.since),
+      errorsTotal: feed.log.errorTotal(),
+      errorsSince: dateText(feed.log.since),
       otherErrors: this.#otherErrors(),
       compatNote: this.#compatNote()
     };
@@ -481,15 +516,15 @@ export class GuardApp extends HandlebarsApplicationMixin(ApplicationV2) {
    * @returns {object}
    */
   #players() {
-    const on = !!setting("collectPlayerErrors");
-    const unread = playerStore.list({unreadOnly: true});
-    const groups = playerStore.grouped().map(user => ({
+    const on = feed.playersOn();
+    const unread = feed.playerStore.list({unreadOnly: true});
+    const groups = feed.playerStore.grouped().map(user => ({
       userName: user.userName,
       modules: user.modules.map(m => {
         const info = ownerInfo(m.owner);
         return {title: info.title, id: info.id, kind: info.kind, count: m.count, canOff: this.#canSwitchOff(info),
           canReport: info.kind === "module",
-          errors: m.errors.map(e => ({key: e.key, message: e.message, count: e.count, isNew: playerStore.isNew(e),
+          errors: m.errors.map(e => ({key: e.key, message: e.message, count: e.count, isNew: feed.playerStore.isNew(e),
             meta: [e.where.type === "script" ? "" : t(`SUG.Players.where.${e.where.type}`, {name: e.where.name}).trim(),
               t(`SUG.Errors.kind.${e.kind}`), `${e.count}x`, dateText(e.last)].filter(Boolean).join(", "),
             stack: e.stack.join("\n"), hasStack: e.stack.length > 0}))};
@@ -509,7 +544,7 @@ export class GuardApp extends HandlebarsApplicationMixin(ApplicationV2) {
    * @returns {object}
    */
   #conflicts() {
-    const {findings, counts, wrapperLibrary} = findConflicts();
+    const {findings, counts, wrapperLibrary} = feed.findConflicts();
     const list = new Intl.ListFormat(game.i18n.lang || "en", {style: "long", type: "conjunction"});
     const rows = findings.map(f => conflictRow(f, list));
     if ( counts.counted && !session.conflictsCounted ) {
@@ -571,7 +606,7 @@ export class GuardApp extends HandlebarsApplicationMixin(ApplicationV2) {
         ? t("SUG.Source.requires") : (["otherSystem", "systemRange"].includes(problem.kind) ? t("SUG.Source.systems")
           : t("SUG.Source.compatibility")));
     return {id: problem.id, title: problem.title, severity: problem.severity, source,
-      text: t(`SUG.Problem.${problem.kind}`, data), links: packageLinks(problem.id, problem.id === game.system.id ? "system" : "module")};
+      text: t(`SUG.Problem.${problem.kind}`, data), links: packageLinks(problem.id, problem.id === feed.systemId() ? "system" : "module")};
   }
 
   /**
@@ -580,7 +615,7 @@ export class GuardApp extends HandlebarsApplicationMixin(ApplicationV2) {
    */
   #errorRows() {
     const rows = [];
-    for ( const [owner, entry] of log.errors ) {
+    for ( const [owner, entry] of feed.log.errors ) {
       const info = ownerInfo(owner);
       if ( (info.kind !== "module") && (info.kind !== "system") ) continue;
       rows.push({title: info.title, id: info.id, kind: info.kind, count: entry.count, message: entry.first.message,
@@ -596,7 +631,7 @@ export class GuardApp extends HandlebarsApplicationMixin(ApplicationV2) {
    */
   #otherErrors() {
     let sum = 0;
-    for ( const [owner, entry] of log.errors ) {
+    for ( const [owner, entry] of feed.log.errors ) {
       const {kind} = splitOwner(owner);
       if ( (kind !== "module") && (kind !== "system") ) sum += entry.count;
     }
@@ -637,7 +672,7 @@ export class GuardApp extends HandlebarsApplicationMixin(ApplicationV2) {
     const targetGeneration = generationOf(target);
     const rows = rated.map(r => {
       const detail = r.evidence.map(e => this.#evidenceLine(e));
-      const dep = log.deprecations.get(`${r.kind}:${r.id}`);
+      const dep = feed.log.deprecations.get(`${r.kind}:${r.id}`);
       const breaks = !!dep?.until.some(u => generationOf(u) <= targetGeneration);
       return {
         id: r.id, title: r.title, kind: r.kind, kindLabel: t(`SUG.Kind.${r.kind}`), isSystem: r.kind === "system", version: r.version,
@@ -687,7 +722,7 @@ export class GuardApp extends HandlebarsApplicationMixin(ApplicationV2) {
         stale: session.checkedTarget && (session.checkedTarget !== target)
       } : null,
       deprecated,
-      deprecatedTotal: log.deprecationTotal(),
+      deprecatedTotal: feed.log.deprecationTotal(),
       deprecatedOther: this.#deprecatedOther(),
       compatNote: this.#compatNote(),
       checklist: this.#checklist(),
@@ -702,7 +737,7 @@ export class GuardApp extends HandlebarsApplicationMixin(ApplicationV2) {
    * @returns {object}
    */
   #safety(updates) {
-    const options = safetyOptions();
+    const options = feed.safetyOptions();
     const saved = session.safety;
     return {
       open: updates || !!saved, updates, ...options,
@@ -734,7 +769,7 @@ export class GuardApp extends HandlebarsApplicationMixin(ApplicationV2) {
   #deprecatedRows(target) {
     const generation = generationOf(target);
     const rows = [];
-    for ( const [owner, entry] of log.deprecations ) {
+    for ( const [owner, entry] of feed.log.deprecations ) {
       const info = ownerInfo(owner);
       if ( (info.kind !== "module") && (info.kind !== "system") ) continue;
       const breaks = entry.until.some(u => generationOf(u) <= generation);
@@ -750,7 +785,7 @@ export class GuardApp extends HandlebarsApplicationMixin(ApplicationV2) {
    */
   #deprecatedOther() {
     let sum = 0;
-    for ( const [owner, entry] of log.deprecations ) {
+    for ( const [owner, entry] of feed.log.deprecations ) {
       const {kind} = splitOwner(owner);
       if ( (kind !== "module") && (kind !== "system") ) sum += entry.count;
     }

@@ -572,6 +572,56 @@
       "backupOn": "Mach vor dem Update ein Backup von dem, was du nicht verlieren darfst. Content Backup & Restore ist aktiv: Du findest es im Kontextmenü von Szenen, Akteuren, Gegenständen und Journalen.",
       "backupOff": "Mach vor dem Update ein Backup. In Foundrys Setup sichert „{snapshot}“ alles, oder kopiere den Data-Ordner von Foundry.",
       "backupLink": "Über Content Backup & Restore"
+    },
+    "Sample": {
+      "group": {
+        "questions": "Rückfragen",
+        "texts": "Kopierte Texte"
+      },
+      "entry": {
+        "runTrouble": "Probleme gefunden",
+        "runOne": "Ein Modul macht Ärger",
+        "runTested": "Probelauf ohne Fehler",
+        "runRan": "Lief gut, seitdem Änderungen",
+        "runChanged": "Geändert, nicht geprüft",
+        "runUntested": "Noch nicht geprüft",
+        "runFirst": "Erster Start",
+        "trialRunning": "Probelauf läuft",
+        "readyRunning": "Bereit für heute Abend: Spielende werden gefragt",
+        "readyErrors": "Bereit für heute Abend: Fehler im Probelauf",
+        "readyPlayers": "Bereit für heute Abend: Fehler der Spielenden",
+        "readyVersions": "Bereit für heute Abend: andere Versionen",
+        "readyFit": "Bereit für heute Abend: Pakete passen nicht mehr",
+        "readyConflicts": "Bereit für heute Abend: Module kommen sich in die Quere",
+        "readyGood": "Bereit für heute Abend: bereit",
+        "readyAlone": "Bereit für heute Abend: niemand angemeldet",
+        "searchTesting": "Modulsuche: eine Runde",
+        "searchFound": "Modulsuche: gefunden",
+        "searchNoneChanged": "Modulsuche: keines der geänderten Module",
+        "searchNoneAll": "Modulsuche: kein Modul",
+        "checkBlocked": "Module blockieren das Update",
+        "checkBlockedOne": "Ein Modul blockiert, nicht online geprüft",
+        "checkBreaks": "Module könnten brechen",
+        "checkBreaksOne": "Ein Modul könnte brechen",
+        "checkUpdate": "Module brauchen erst ein Update",
+        "checkUpdateOne": "Ein Modul braucht erst ein Update",
+        "checkOpen": "Nichts spricht dagegen",
+        "checkReady": "Alles ist bereit",
+        "backOlder": "Letzter guter Stand mit Änderungen",
+        "backSame": "Letzter guter Stand, gleiche Module",
+        "backCurrent": "Jetziger Stand ist gut",
+        "backNone": "Noch kein guter Stand",
+        "reportStart": "Vor der Suche nach Issues",
+        "reportFound": "Offene Issues gefunden",
+        "reportNone": "Kein offenes Issue passt",
+        "reportFailed": "Die Suche hat nicht geklappt",
+        "reportLoading": "Suche läuft",
+        "reportNoRepo": "Kein Repository bekannt",
+        "reportNoMessage": "Keine Fehlermeldung",
+        "searchIntro": "Modulsuche starten",
+        "searchIntroAll": "Modulsuche starten, kein Modul geändert",
+        "exportText": "Export vor einem Update"
+      }
     }
   }
 }

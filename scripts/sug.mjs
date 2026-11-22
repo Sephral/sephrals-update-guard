@@ -8,6 +8,7 @@ import {applyModuleLanguage} from "./language.mjs";
 import {requestVersions, startPlayers, store as playerStore} from "./players.mjs";
 import {describeReport, openReport} from "./report-app.mjs";
 import {saveModuleList} from "./safety.mjs";
+import {sampleWindows} from "./sample-windows.mjs";
 import {readSearch} from "./search.mjs";
 import {noticeNewVersions, runSelfTest} from "./selftest.mjs";
 import {changeLanguage, registerSettings} from "./settings.mjs";
@@ -93,6 +94,8 @@ Hooks.once("init", () => {
     export: () => exportData(),
     /** Errors and deprecated calls counted since the page loaded, by package. */
     watch: () => ({errors: log.errorCounts(), deprecated: Object.fromEntries([...log.deprecations].map(([k, v]) => [k, v.count]))}),
+    /** The windows filled with made-up modules and results, nothing saved (translators, testing; see samples.mjs). */
+    samples: () => sampleWindows(),
     /** Check the module (GM). */
     runSelfTest,
     /** Save the debug file of Sephral's modules (GM). */
