@@ -8,7 +8,7 @@
     "SETTINGS": {
       "uiLanguage": {
         "name": "Modulsprache",
-        "hint": "Sprache von Update Guard auf diesem Gerät. \"Wie Foundry\" folgt der Sprache von Foundry."
+        "hint": "Sprache von Update Guard auf diesem Gerät. „Wie Foundry“ folgt der Sprache von Foundry."
       },
       "theme": {
         "name": "Aussehen",
@@ -34,7 +34,7 @@
       },
       "collectPlayerErrors": {
         "name": "Fehler der Spielenden",
-        "hint": "Die Browser der Spielenden melden Fehler von Modulen an die SL: das Modul, eine kurze Meldung, ein paar Zeilen des Aufrufwegs und wo es passiert ist. Es wird nichts Persönliches gesendet, und die Spielenden merken nichts davon. Gilt für alle in dieser Welt."
+        "hint": "Die Browser der Spielenden melden Fehler von Modulen an die SL: das Modul, eine kurze Meldung, ein paar Zeilen der Aufrufliste und wo es passiert ist. Es wird nichts Persönliches gesendet, und die Spielenden merken nichts davon. Gilt für alle in dieser Welt."
       },
       "playerNotice": {
         "name": "Hinweis bei Fehlern der Spielenden",
@@ -89,7 +89,7 @@
       "coreDown": "Foundry {from} → {to} (älter)",
       "systemUp": "{title} {from} → {to}",
       "systemDown": "{title} {from} → {to} (älter)",
-      "systemOther": "Spielsystem gewechselt von {from} zu {to}",
+      "systemOther": "Spielsystem gewechselt von {from} auf {to}",
       "up": "{title} {from} → {to}",
       "down": "{title} {from} → {to} (älter)",
       "added": "{title} {version} ist installiert und aus",
@@ -113,7 +113,7 @@
       "missingSystem": "braucht das Spielsystem {id}, diese Welt läuft mit {system}.",
       "otherSystem": "ist für die Systeme {systems} gemacht, diese Welt läuft mit {system}.",
       "systemRange": "ist für {system} von {minimum} bis {maximum} gemacht, installiert ist {version}.",
-      "foundry": "hat in Foundry den Status \"{text}\"."
+      "foundry": "hat in Foundry den Status „{text}“."
     },
     "Conflicts": {
       "title": "Module, die sich in die Quere kommen",
@@ -139,7 +139,7 @@
         "overrideTwice": "{a} und {b} ersetzen beide {targets} komplett. Nur eines von beiden kann funktionieren.",
         "libraryConflict": "Die Wrapper-Bibliothek hat bemerkt, dass sich {a} und {b} bei {targets} in die Quere kommen.",
         "overrideAndWrap": "{a} ersetzt {targets} komplett, und {b} verändert es ebenfalls.",
-        "replacedUnknown": "Etwas, das kein Modul ist, hat {targets} ohne die Wrapper-Bibliothek ersetzt, und {a} umhüllt es. Wer es war, ist unbekannt."
+        "replacedUnknown": "Etwas, das kein Modul ist, hat {targets} ohne die Wrapper-Bibliothek ersetzt, und {a} verändert es. Wer es war, ist unbekannt."
       },
       "next": {
         "key": "Gib einem der beiden in den Tasteneinstellungen eine andere Taste.",
@@ -212,7 +212,7 @@
       "failed": "{source}: die Anfrage ist fehlgeschlagen ({error})"
     },
     "ERR": {
-      "blocked": "der Browser kam nicht heran, wegen fehlender CORS Erlaubnis, fehlendem Netz oder einer blockierten Verbindung",
+      "blocked": "der Browser kam nicht heran, wegen fehlender CORS-Erlaubnis, fehlendem Netz oder einer blockierten Verbindung",
       "offline": "der Browser ist offline",
       "timeout": "keine Antwort in der Zeit",
       "http": "der Server antwortete {detail}",
@@ -220,11 +220,11 @@
       "otherPackage": "das Manifest gehört zu einem anderen Paket",
       "tooLarge": "die Antwort war zu groß",
       "rateLimit": "das Limit der Anfragen ist vorerst aufgebraucht",
-      "noManifest": "keine brauchbare Manifest Adresse"
+      "noManifest": "keine brauchbare Manifest-Adresse"
     },
     "Online": {
-      "sends": "Online prüfen sendet die IDs des Spielsystems und der aktiven Module ({count} IDs), je eine Anfrage, an forge-vtt.com, die öffentliche Paketliste von The Forge.",
-      "sendsMore": "Kennt diese Liste ein Paket nicht, wird seine Manifest Adresse beim dort genannten Host angefragt. Mehr verlässt deinen Browser nicht: keine Weltdaten, keine Namen, keine Einstellungen. Wie jede Anfrage einer Webseite trägt sie die Adresse dieses Foundry Servers. Antworten bleiben eine Stunde im Speicher, die Anfragen kommen mit Abstand. Vor deinem Klick wird nichts gesendet.",
+      "sends": "Neuere Versionen suchen sendet die IDs des Spielsystems und der aktiven Module ({count} IDs), je eine Anfrage, an forge-vtt.com, die öffentliche Paketliste von The Forge.",
+      "sendsMore": "Kennt diese Liste ein Paket nicht, wird seine Manifest-Adresse beim dort genannten Host angefragt. Mehr verlässt deinen Browser nicht: keine Weltdaten, keine Namen, keine Einstellungen. Wie jede Anfrage einer Webseite trägt sie die Adresse dieses Foundry-Servers. Antworten bleiben eine Stunde im Speicher, die Anfragen werden zeitlich gestaffelt. Vor deinem Klick wird nichts gesendet.",
       "run": "Neuere Versionen suchen",
       "cancel": "Stopp",
       "progress": "{done} von {total} Anfragen erledigt",
@@ -233,7 +233,7 @@
       "failures": "Pakete, die nicht geantwortet haben",
       "forge": "Paketliste von The Forge: {ok} geantwortet, {notListed} nicht gelistet, {failed} fehlgeschlagen.",
       "manifest": "Manifeste: {ok} gelesen, {failed} fehlgeschlagen, {skipped} ohne Adresse.",
-      "failed": "Die Online Prüfung ist mit einem Fehler abgebrochen, siehe Konsole.",
+      "failed": "Die Online-Prüfung ist mit einem Fehler abgebrochen, siehe Konsole.",
       "what": "Was dabei gesendet wird",
       "hint": "Fragt die öffentliche Paketliste von The Forge nach neueren Versionen. Vorher verlässt nichts deinen Browser."
     },
@@ -244,11 +244,11 @@
       "other": "Veraltete Aufrufe von Foundry selbst oder Code, der sich nicht zuordnen lässt"
     },
     "Export": {
-      "hint": "Eine Datei mit allen Versionen, der Bewertung für das Ziel, dem was nicht passt, Fehlern und veralteten Aufrufen.",
+      "hint": "Eine Datei mit allen Versionen, der Bewertung für das Ziel, dem, was nicht passt, Fehlern und veralteten Aufrufen.",
       "json": "Als JSON speichern",
       "text": "Als Text speichern",
       "saved": "{file} gespeichert.",
-      "title": "Update Guard Export",
+      "title": "Export von Update Guard",
       "modules": "Module ([x] = an):",
       "check": "Bewertung für Foundry {target}:",
       "latest": "neueste {version}",
@@ -263,7 +263,7 @@
     "Checklist": {
       "title": "Checkliste vor dem Update",
       "export": "Speichere den Export unten als Text oder JSON. Startet die Welt nach dem Update nicht, ist er die Aufzeichnung dessen, was installiert war.",
-      "snapshot": "Sichere in Foundrys Setup alles mit \"{snapshot}\", bevor du updatest.",
+      "snapshot": "Sichere in Foundrys Setup alles mit „{snapshot}“, bevor du updatest.",
       "copy": "Kopiere den Weltordner, oder probiere das Update zuerst an einer Kopie der Welt.",
       "order": "Update in dieser Reihenfolge: Foundry, dann das Spielsystem, dann die Module mit Update nötig.",
       "test": "Starte die Welt als SL und lass in Update Guard einen Probelauf machen."
@@ -277,21 +277,21 @@
       "rowDown": "jetzt {current}, damals {good}",
       "copy": "Kopieren",
       "verify": "Auf GitHub prüfen",
-      "verifyHint": "Fragt api.github.com, ob das Release dieser Version existiert und die Manifest Datei hat.",
+      "verifyHint": "Fragt api.github.com, ob das Release dieser Version existiert und die Manifest-Datei hat.",
       "guess": "Die Adresse ist aus der Adresse des installierten Manifests abgeleitet. Sie ist eine Vermutung, bis du sie geprüft hast.",
       "foundryPage": "Seite auf foundryvtt.com, falls gelistet",
-      "noDerive": "Aus der installierten Adresse lässt sich keine ältere Manifest Adresse ableiten.",
+      "noDerive": "Aus der installierten Adresse lässt sich keine ältere Manifest-Adresse ableiten.",
       "nothingToDo": "Jedes Modul hat die Version des letzten guten Stands.",
       "stepsTitle": "Schritte",
       "copied": "Adresse kopiert.",
       "copyFailed": "Die Adresse ließ sich nicht kopieren.",
-      "verifyFound": "Das Release {tag} existiert und hat die Manifest Datei.",
-      "verifyNoFile": "Das Release {tag} existiert, hat aber keine Manifest Datei mit diesem Namen.",
-      "verifyNotFound": "Unter den üblichen Tag Namen wurde kein Release für diese Version gefunden.",
+      "verifyFound": "Das Release {tag} existiert und hat die Manifest-Datei.",
+      "verifyNoFile": "Das Release {tag} existiert, hat aber keine Manifest-Datei mit diesem Namen.",
+      "verifyNotFound": "Unter den üblichen Tag-Namen wurde kein Release für diese Version gefunden.",
       "verifyFailed": "Prüfung nicht möglich: {error}",
       "step": {
-        "setup": "Verlasse die Welt mit \"{setup}\". Foundry installiert und stellt Pakete nur im Setup wieder her.",
-        "snapshot": "Hast du vor dem Update einen Snapshot oder ein Backup gemacht, stelle es dort wieder her. \"{snapshot}\" ist der Knopf, der einen macht.",
+        "setup": "Verlasse die Welt mit „{setup}“. Foundry installiert und stellt Pakete nur im Setup wieder her.",
+        "snapshot": "Hast du vor dem Update einen Snapshot oder ein Backup gemacht, stelle es dort wieder her. „{snapshot}“ ist der Knopf, der einen macht.",
         "install": "Sonst öffne {modules}, dann {install}, füge die {manifest} der älteren Version ein und installiere sie. Prüfe danach die Version in der Modulliste.",
         "world": "Starte die Welt und lass in Update Guard einen Probelauf machen."
       },
@@ -333,20 +333,20 @@
       "Watch": "Die frühe Beobachtung von Fehlern läuft nicht.",
       "Probe": "Der Zähler für veraltete Aufrufe steckt nicht in den Kompatibilitätsmustern von Foundry.",
       "Save": "Foundry kann von hier keine Datei speichern.",
-      "CoreTexts": "Foundry Texte für die Schritte fehlen: {keys}",
+      "CoreTexts": "Foundry-Texte für die Schritte fehlen: {keys}",
       "Socket": "Der Socket des Moduls fehlt.",
       "Players": "Die Logik für die Fehler der Spielenden arbeitet nicht wie erwartet.",
       "PlayerSettings": "Die Einstellungen für die Fehler der Spielenden sind nicht registriert.",
-      "Repository": "Im Manifest des Moduls steht kein GitHub Repository.",
+      "Repository": "Im Manifest des Moduls steht kein GitHub-Repository.",
       "Loadouts": "Module Loadouts ist aktiv, aber seine API hat kein saveCurrent.",
       "Conflicts": "Die Konfliktsuche funktioniert nicht wie erwartet."
     },
     "DEBUG": {
-      "Title": "Debug Datei",
-      "Save": "Debug Datei speichern",
-      "Hint": "Eine Datei über alle Module von Sephral in dieser Welt, für Fehlerberichte. Sie enthält Chattexte und Flüstern.",
+      "Title": "Debug-Datei",
+      "Save": "Debug-Datei speichern",
+      "Hint": "Eine Datei über alle Module von Sephral in dieser Welt, für Fehlerberichte. Sie enthält Chattexte und Flüsternachrichten.",
       "Entry": "Update Guard",
-      "Saved": "Debug Datei gespeichert: {file}. Sie enthält Chattexte und Flüstern, prüfe sie, bevor du sie weitergibst."
+      "Saved": "Debug-Datei gespeichert: {file}. Sie enthält Chattexte und Flüsternachrichten, prüfe sie, bevor du sie weitergibst."
     },
     "Kind": {
       "system": "Spielsystem",
@@ -354,10 +354,10 @@
     },
     "Run": {
       "trouble": "{count} Module machen Ärger.",
-      "troubleSub": "Unten steht, welche und wo. Du kannst sie einzeln ausschalten oder das schuldige Modul suchen lassen.",
+      "troubleSub": "Unten steht, welche und wo. Du kannst sie einzeln ausschalten oder die Ursache suchen lassen.",
       "troubleTab": "{count} Module machen Ärger",
       "troubleOne": "Ein Modul macht Ärger.",
-      "troubleOneSub": "Unten steht, welches und wo. Du kannst es ausschalten oder das schuldige Modul suchen lassen.",
+      "troubleOneSub": "Unten steht, welches und wo. Du kannst es ausschalten oder die Ursache suchen lassen.",
       "troubleOneTab": "Ein Modul macht Ärger",
       "tested": "Alles läuft.",
       "testedSub": "Probelauf vom {at}: {checks} Prüfungen ohne Fehler.",
@@ -416,7 +416,7 @@
     "Trial": {
       "title": "Probelauf",
       "run": "Probelauf starten",
-      "hint": "Öffnet kurz Bögen und Fenster und schließt sie wieder. Deine Welt bleibt dabei unverändert.",
+      "hint": "Öffnet kurz Charakterbögen und Fenster und schließt sie wieder. Deine Welt bleibt dabei unverändert.",
       "progress": "Prüfung {done} von {total}: {label}",
       "summaryGood": "{checks} Prüfungen, kein Modul hat einen Fehler geworfen.",
       "summaryBad": "{checks} Prüfungen, {count} Module haben Fehler geworfen.",
@@ -426,9 +426,9 @@
       "timedOut": "zu langsam",
       "failed": "Der Probelauf ist abgebrochen, Einzelheiten stehen in der Konsole.",
       "step": {
-        "actor": "Figurenbogen",
+        "actor": "Charakterbogen",
         "item": "Gegenstand",
-        "journal": "Tagebuch",
+        "journal": "Journal",
         "table": "Rolltabelle",
         "scene": "Szeneneinstellungen",
         "token": "Token-Einstellungen",
@@ -476,18 +476,18 @@
       "title": "Modul ausschalten",
       "yes": "Ausschalten",
       "text": "{name} wird in dieser Welt ausgeschaltet, die Welt lädt neu. Du kannst es jederzeit in Foundrys Modulverwaltung wieder einschalten.",
-      "also": "Das braucht es, deshalb geht mit aus: {names}."
+      "also": "Diese Module brauchen es und werden mit ausgeschaltet: {names}."
     },
     "Players": {
       "title": "Fehler der Spielenden",
-      "hint": "Die Browser der Spielenden melden dir Fehler von Modulen, mit dem Modul, dem Ort und wie oft. Gesendet werden nur eine kurze Meldung und ein paar Zeilen des Aufrufwegs, nichts Persönliches. Die Spielenden merken nichts davon.",
+      "hint": "Die Browser der Spielenden melden dir Fehler von Modulen, mit dem Modul, dem Ort und wie oft. Gesendet werden nur eine kurze Meldung und ein paar Zeilen der Aufrufliste, nichts Persönliches. Die Spielenden merken nichts davon.",
       "off": "Meldungen der Spielenden sind in den Einstellungen ausgeschaltet.",
       "empty": "Bisher hat niemand einen Fehler gemeldet.",
       "new": "{count} noch nicht gelesen",
       "notice": "{user} hat einen Fehler in {module}.",
       "read": "Als gelesen markieren",
       "clear": "Liste leeren",
-      "stack": "Zeilen des Aufrufwegs",
+      "stack": "Zeilen der Aufrufliste",
       "where": {
         "sheet": "Bogen {name}",
         "window": "Fenster {name}",
@@ -509,7 +509,7 @@
       "found": "Diese offenen Issues könnten dasselbe Problem sein:",
       "foundHint": "Lies sie zuerst. Passt eines, ergänze dort, was du weißt, statt ein neues Issue zu öffnen.",
       "none": "Kein offenes Issue passt. Der Text unten ist für ein neues bereit.",
-      "noRepo": "Für dieses Modul ist kein GitHub Repository bekannt. Kopiere den Text und schick ihn an den Autor.",
+      "noRepo": "Für dieses Modul ist kein GitHub-Repository bekannt. Kopiere den Text und schick ihn an den Autor.",
       "textTitle": "Text für den Fehlerbericht",
       "textHint": "Versionen, der Fehler und der Ort, an dem er aufgetreten ist. Du kannst ihn ändern, bevor du ihn kopierst. Namen von Spielenden stehen nicht drin.",
       "copy": "Text kopieren",
@@ -557,7 +557,7 @@
         "extra": "Nur dort: {names}."
       },
       "conflicts": "Noch nicht. Module kommen sich in die Quere: {names}.",
-      "conflictTitle": "Module in der Quere:"
+      "conflictTitle": "Module, die sich in die Quere kommen:"
     },
     "Safety": {
       "summary": "Vor dem Update: Modulliste sichern und ein Backup machen",
@@ -566,11 +566,11 @@
       "loadoutOff": "Module Loadouts von Sephral ist hier nicht aktiv. Der Export weiter unten hält die Liste der Module und Versionen fest.",
       "save": "Modulliste als Loadout speichern",
       "manager": "Module Loadouts öffnen",
-      "saved": "Als Loadout \"{name}\" gespeichert.",
+      "saved": "Als Loadout „{name}“ gespeichert.",
       "failed": "Das Loadout konnte nicht gespeichert werden.",
       "description": "Von Update Guard vor einem Update gespeichert.",
       "backupOn": "Mach vor dem Update ein Backup von dem, was du nicht verlieren darfst. Content Backup & Restore ist aktiv: Du findest es im Kontextmenü von Szenen, Akteuren, Gegenständen und Journalen.",
-      "backupOff": "Mach vor dem Update ein Backup. In Foundrys Setup sichert \"{snapshot}\" alles, oder kopiere den Data Ordner von Foundry.",
+      "backupOff": "Mach vor dem Update ein Backup. In Foundrys Setup sichert „{snapshot}“ alles, oder kopiere den Data-Ordner von Foundry.",
       "backupLink": "Über Content Backup & Restore"
     }
   }

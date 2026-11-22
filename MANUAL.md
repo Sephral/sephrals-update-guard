@@ -94,7 +94,7 @@ The levels: *Confirmed* is red, *Likely* is yellow, *Note* is grey and folded un
 * **Keys.** Two modules that react to the same key with the same modifiers (Ctrl, Shift, Alt in any order) are *Likely*, because usually only the first handler that takes the key press gets it. Actions count only when both listen to the same event (key down or key up). A key that is only held down as a modifier (Shift, Ctrl, Alt, Meta) is never reported, because several modules listening to it is normal. A module that shares a key with Foundry itself is a *Note*, modules do that on purpose with a higher precedence. Foundry and the game system sharing keys are not reported at all. *Change keys* opens Foundry's key settings.
 * **Declared conflicts.** A module can say in its manifest that it does not work together with another module or with a game system, optionally for a range of versions. If both are active and the version is inside that range, the finding is *Confirmed*.
 * **Wrappers.** When the wrapper library is active, Update Guard listens to its public hooks from the first moment, because it loads before the other modules. Two modules that replace the same method completely are *Confirmed*: the library says either that the second registration failed or that an override was replaced. A module that replaces a method completely while another module changes it as well is a *Note*. Plain wraps of one method by several modules are normal and never reported. When the library itself notices that a wrapper does not pass the call on, or that a wrapped method was replaced without it, that is *Likely*, and when the library cannot tell who replaced it, the finding is a *Note* that says the owner is unknown. Without the wrapper library nothing of this is checked, and the window says so.
-* **Sephral's own modules.** They are made to cooperate, so a clash between them is never red or yellow, at most a note.
+* **Sephral’s own modules.** They are made to cooperate, so a clash between them is never red or yellow, at most a note.
 
 What is not checked, and why. Methods that modules replace without the wrapper library cannot be attributed to a module afterwards, and a single replaced method is no proof of a conflict, so Update Guard does not guess. The same goes for classes in `CONFIG` and for sheets registered as the default for the same type: once the last module has set them, nothing tells how many modules wanted them. Two wrapped methods are the same one only when the modules spell the target the same way, so a conflict can slip through when they do not.
 
@@ -140,7 +140,7 @@ The Forge's list gives the newest version and the compatibility of every version
 
 A blocked request is reported as *the browser could not reach it*. The browser does not say whether the cause was a missing permission, no network or a blocked connection.
 
-### Old calls
+### Deprecated calls
 
 Modules that called Foundry functions marked as deprecated since the page loaded are listed with the number of calls, the first message and the version in which Foundry removes the function. A call that Foundry removes in the target version or earlier is marked, because that is the clearest sign of trouble. Foundry's compatibility mode set to silent hides these warnings, and the window says so. Every call is counted, also those Foundry logs only once and those a module has hidden with its own pattern.
 
@@ -153,7 +153,7 @@ The section *Before you update* on the second tab opens by itself as soon as the
 
 ### Export and checklist
 
-*Save as JSON* and *Save as text* write one file with every installed module and version, its manifest address, the rating for the target, what does not fit, errors, old calls and the recorded states. The checklist names the steps before an update, with Foundry's own button names.
+*Save as JSON* and *Save as text* write one file with every installed module and version, its manifest address, the rating for the target, what does not fit, errors, deprecated calls and the recorded states. The checklist names the steps before an update, with Foundry's own button names.
 
 ## How do I get back?
 
@@ -201,17 +201,17 @@ One key without a default, set it in Foundry's key settings under Update Guard: 
 | `api.history()` | The recorded states, newest first. |
 | `api.export()` | The export as plain data. |
 | `api.conflicts()` | The modules that get in each other's way, read only (GM): `{findings, counts, wrapperLibrary}`. A finding has `kind`, `level` (`bad`, `warn`, `note`), `owners` (such as `module:id`) and `data`. |
-| `api.watch()` | Errors and old calls counted since the page loaded, by package. |
+| `api.watch()` | Errors and deprecated calls counted since the page loaded, by package. |
 | `await api.runSelfTest()` | The self test. |
 | `api.saveDebugFile()` | The debug file. |
 
 ## Self test
 
-*Run self test* in the module settings checks what Update Guard relies on: how Foundry names package data and availability, that its version comparison agrees with Foundry's, the stored history, the early watch for errors and the counter for old calls, saving files, the module socket, the logic that cleans and counts the players' reports, the conflict finder with made up data and that it hears the wrapper library, the settings for them, that its own manifest names a GitHub repository, that the API of Module Loadouts has what the safety net uses when that module is active, and the texts it uses. The result comes as a notification and a chat message only you see, with the Foundry version the module was verified with. After a Foundry update you get a one time notice to run it.
+*Run self test* in the module settings checks what Update Guard relies on: how Foundry names package data and availability, that its version comparison agrees with Foundry's, the stored history, the early watch for errors and the counter for deprecated calls, saving files, the module socket, the logic that cleans and counts the players' reports, the conflict finder with made up data and that it hears the wrapper library, the settings for them, that its own manifest names a GitHub repository, that the API of Module Loadouts has what the safety net uses when that module is active, and the texts it uses. The result comes as a notification and a chat message only you see, with the Foundry version the module was verified with. After a Foundry update you get a one time notice to run it.
 
 ## Debug file
 
-For bug reports, the GM saves one file about all of Sephral’s modules in this world: `Save debug file` in the module settings, or `Save Debug File (Sephral’s Modules)` in the context menu of a chat message. For Update Guard it holds the Foundry and system version, the recorded states with their marks, the counts of errors and old calls per package (no messages), for the errors of the players only how many there are per module and from how many players, how many conflicts of each level there are, and what the watch has installed.
+For bug reports, the GM saves one file about all of Sephral’s modules in this world: `Save debug file` in the module settings, or `Save Debug File (Sephral’s Modules)` in the context menu of a chat message. For Update Guard it holds the Foundry and system version, the recorded states with their marks, the counts of errors and deprecated calls per package (no messages), for the errors of the players only how many there are per module and from how many players, how many conflicts of each level there are, and what the watch has installed.
 
 The file contains chat text and whispers. Check it before you share it.
 

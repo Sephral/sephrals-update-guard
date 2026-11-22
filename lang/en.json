@@ -223,7 +223,7 @@
       "noManifest": "no usable manifest address"
     },
     "Online": {
-      "sends": "Check online sends the IDs of the game system and the active modules ({count} IDs), one request each, to forge-vtt.com, the public package list of The Forge.",
+      "sends": "Look for newer versions sends the IDs of the game system and the active modules ({count} IDs), one request each, to forge-vtt.com, the public package list of The Forge.",
       "sendsMore": "For a package that list does not know, its manifest address is requested from the host named there. Nothing else leaves your browser: no world data, no names, no settings. Like every request from a web page, it carries the address of this Foundry server. Answers stay in memory for one hour and requests are spaced out. Nothing is sent before you click.",
       "run": "Look for newer versions",
       "cancel": "Stop",
@@ -344,7 +344,7 @@
     "DEBUG": {
       "Title": "Debug file",
       "Save": "Save debug file",
-      "Hint": "One file about all of Sephral's modules in this world, for bug reports. It contains chat text and whispers.",
+      "Hint": "One file about all of Sephral’s modules in this world, for bug reports. It contains chat text and whispers.",
       "Entry": "Update Guard",
       "Saved": "Debug file saved: {file}. It contains chat text and whispers, check it before you share it."
     },
@@ -354,10 +354,10 @@
     },
     "Run": {
       "trouble": "{count} modules are causing trouble.",
-      "troubleSub": "Below you see which ones and where. Switch them off one by one or let the search find the culprit.",
+      "troubleSub": "Below you see which ones and where. Switch them off one by one or let the search track down the cause.",
       "troubleTab": "{count} modules causing trouble",
       "troubleOne": "One module is causing trouble.",
-      "troubleOneSub": "Below you see which one and where. Switch it off or let the search find the culprit.",
+      "troubleOneSub": "Below you see which one and where. Switch it off or let the search track down the cause.",
       "troubleOneTab": "One module causing trouble",
       "tested": "Everything works.",
       "testedSub": "Test run of {at}: {checks} checks without errors.",
@@ -421,7 +421,7 @@
       "summaryGood": "{checks} checks, no module threw an error.",
       "summaryBad": "{checks} checks, {count} modules threw errors.",
       "summaryBadOne": "{checks} checks, one module threw errors.",
-      "deprecated": "{count} outdated calls came up on the way. They are listed under Can I update?",
+      "deprecated": "{count} deprecated calls came up on the way. They are listed under Can I update?",
       "steps": "All {count} checks",
       "timedOut": "too slow",
       "failed": "The test run stopped, the console has the details.",
